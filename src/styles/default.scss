@@ -1,0 +1,35 @@
+input,
+button {
+  border: none;
+  font-family: inherit;
+  color: inherit;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+button {
+  &:hover {
+    filter: brightness(0.9);
+  }
+}
+
+.main-btn {
+  width: 70%;
+  height: 36px;
+  border-radius: 15px;
+  font-size: 13px;
+  background: #dbdbdb;
+  color: black;
+
+  &.highlight {
+    background: #5e00a8;
+    color: white;
+  }
+
+  &.unhighlight {
+    background: #1f1f1f;
+    color: rgb(185, 185, 185);
+  }
+}
