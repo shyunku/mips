@@ -15,6 +15,16 @@ button {
   }
 }
 
+.main-input {
+  border-radius: 12px;
+  height: 36px;
+  box-sizing: border-box;
+  background-color: #222222;
+  padding: 5px 16px;
+  font-size: 11px;
+  color: rgb(191, 191, 191);
+}
+
 .main-btn {
   width: 70%;
   height: 36px;
@@ -31,5 +41,41 @@ button {
   &.unhighlight {
     background: #1f1f1f;
     color: rgb(185, 185, 185);
+  }
+}
+
+.img {
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+}
+
+.backward {
+  display: flex;
+  width: 100%;
+  margin-bottom: 12px;
+  font-size: 11px;
+  align-items: center;
+  color: rgb(133, 133, 133);
+
+  .icon {
+    display: flex;
+    align-items: center;
+    margin-right: 5px;
+    font-size: 13px;
+  }
+
+  .label {
+    display: flex;
+    align-items: center;
   }
 }

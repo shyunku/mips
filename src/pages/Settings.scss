@@ -1,0 +1,20 @@
+.container.join-game {
+  .menus {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    .menu {
+      display: flex;
+      background-color: rgb(94, 63, 63);
+      padding: 12px 16px;
+      box-sizing: border-box;
+      border-radius: 12px;
+      font-size: 13px;
+
+      .label {
+        margin-left: 5px;
+      }
+    }
+  }
+}

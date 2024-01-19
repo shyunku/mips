@@ -1,0 +1,25 @@
+.icon-input {
+  display: flex;
+  align-items: center;
+  position: relative;
+
+  background-color: #2d2d2d;
+  padding: 5px 16px;
+  height: 24px;
+  border-radius: 20px;
+  overflow: hidden;
+
+  .icon {
+    position: absolute;
+    top: 50%;
+    left: 13px;
+    transform: translateY(-50%);
+    font-size: 13px;
+  }
+
+  input {
+    background-color: transparent;
+    font-size: 11px;
+    margin-left: 16px;
+  }
+}

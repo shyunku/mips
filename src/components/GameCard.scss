@@ -1,0 +1,98 @@
+.game-card {
+  display: flex;
+  background-color: #2d2d2d;
+  border-radius: 15px;
+  padding: 8px;
+  box-sizing: border-box;
+  font-size: 10px;
+
+  &:not(:last-child) {
+    margin-bottom: 10px;
+  }
+
+  &.active {
+    background: linear-gradient(120deg, #6a00d4, #8500ba);
+  }
+
+  .game-image {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+  }
+
+  .game-info {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+    color: rgb(191, 191, 191);
+    flex: 1;
+
+    & > *:not(:first-child) {
+      margin-top: 5px;
+    }
+
+    .game-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .game-code {
+      display: flex;
+      margin-top: 5px;
+      align-items: center;
+      justify-content: flex-start;
+      flex: 1;
+      color: #dbacff;
+
+      .label {
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+      }
+
+      .code {
+        margin-left: 2px;
+      }
+    }
+
+    .statistic {
+      display: flex;
+      align-items: center;
+      font-size: 11px;
+      flex: 1;
+
+      & > * {
+        display: flex;
+        align-items: center;
+
+        &:not(:last-child) {
+          margin-right: 8px;
+        }
+
+        .icon {
+          display: flex;
+          align-items: center;
+        }
+
+        .label {
+          display: flex;
+          align-items: center;
+          margin-left: 3px;
+        }
+      }
+
+      .game-favorites {
+        color: #ffaa3b;
+      }
+
+      .game-played {
+        color: #dbacff;
+
+        .label {
+          margin-left: 2px;
+        }
+      }
+    }
+  }
+}

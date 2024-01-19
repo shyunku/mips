@@ -1,30 +1,25 @@
 import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const Signup = () => {
   const navigate = useNavigate();
 
-  const goBack = () => {
-    navigate(-1);
-  };
-
-  const goToSignupPage = () => {
-    navigate("/signup");
+  const goToEntryPage = () => {
+    navigate("/");
   };
 
   return (
     <div className="login page">
       <div className="mips">MIPS</div>
-      <div className="label">로그인</div>
+      <div className="label">회원가입 </div>
       <div className="input-container">
         <input type="text" placeholder="아이디" />
+        <input type="text" placeholder="닉네임 (옵션)" />
         <input type="password" placeholder="비밀번호" />
-        <div className="sign-up" onClick={goToSignupPage}>
-          아직 회원이 아니신가요?
-        </div>
+        <input type="password" placeholder="비밀번호 확인" />
       </div>
       <div className="main-btn-container">
-        <button className="main-btn highlight">로그인</button>
-        <button className="main-btn unhighlight" onClick={goBack}>
+        <button className="main-btn highlight">회원가입 </button>
+        <button className="main-btn unhighlight" onClick={goToEntryPage}>
           돌아가기
         </button>
       </div>
@@ -32,4 +27,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;

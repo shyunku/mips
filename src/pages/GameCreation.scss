@@ -1,0 +1,222 @@
+.game-creation {
+  display: flex;
+  flex-direction: column;
+  background-color: #262626;
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  overflow: hidden;
+
+  &.creating {
+    .header {
+      background: linear-gradient(120deg, #6a00d4, #8500ba);
+    }
+
+    .game-btn {
+      background-color: #d69532 !important;
+    }
+    .body {
+      background-color: rgb(47, 33, 60) !important;
+    }
+  }
+
+  .header {
+    display: flex;
+    border-radius: 0;
+    margin-bottom: 0 !important;
+
+    .game-image {
+      width: 85px;
+      height: 85px;
+    }
+
+    .game-info {
+      display: flex;
+      flex-direction: column;
+      margin-left: 10px;
+      flex: 1;
+
+      .game-name {
+        font-size: 18px;
+        font-weight: bold;
+        color: white;
+      }
+
+      .game-description {
+        margin-top: 8px;
+      }
+
+      .game-players {
+        margin-top: 5px;
+      }
+
+      .game-initial-settings {
+        display: flex;
+        margin-top: 10px;
+        align-items: center;
+        flex: 1;
+
+        .game-btn {
+          font-size: 10px;
+          border-radius: 15px;
+          background-color: #9123ff;
+          width: 80px;
+          padding: 4px 0;
+          color: white;
+        }
+
+        .pw-setting {
+          display: flex;
+          align-items: center;
+          margin-left: 8px;
+          border-radius: 15px;
+          background-color: #ffffff2a;
+          padding: 5px 15px;
+          color: rgb(169, 169, 169);
+
+          .icon {
+            font-size: 13px;
+          }
+
+          .label {
+            margin-left: 5px;
+          }
+        }
+      }
+    }
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    border-top: 1px solid #454149;
+    overflow: hidden;
+
+    .placeholder {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 13px;
+      width: 100%;
+      text-align: center;
+      opacity: 0.3;
+    }
+
+    & > .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      padding: 10px 15px;
+      box-sizing: border-box;
+      overflow-y: auto;
+
+      .game-code-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .label {
+          font-size: 11px;
+          color: rgb(161, 136, 183);
+        }
+
+        .copy-section {
+          display: flex;
+          align-items: center;
+          margin-top: 3px;
+          color: rgb(194, 158, 255);
+          font-weight: bold;
+          padding: 2px;
+
+          .icon {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            margin-bottom: -4px;
+          }
+
+          .code {
+            display: flex;
+            align-items: center;
+            margin-left: 5px;
+            font-size: 22px;
+          }
+        }
+      }
+
+      .setting-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 15px;
+        width: 100%;
+
+        .session-setting-btn {
+          display: flex;
+          align-items: center;
+          font-size: 14px;
+          background-color: #76459b;
+          width: 100%;
+          padding: 12px 12px;
+          box-sizing: border-box;
+          border-radius: 12px;
+          color: #ffffff;
+
+          & > * {
+            display: flex;
+            align-items: center;
+          }
+
+          .icon {
+            margin-bottom: -2px;
+          }
+
+          .label {
+            margin-left: 5px;
+          }
+        }
+      }
+
+      .participants-section {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        margin-top: 15px;
+
+        .label {
+          font-weight: bold;
+          font-size: 15px;
+        }
+
+        .participants {
+          display: flex;
+          flex-direction: column;
+          margin-top: 10px;
+
+          .participant {
+            display: flex;
+            padding: 8px 12px;
+            background-color: #442959;
+            border-radius: 10px;
+
+            &:not(:last-child) {
+              margin-bottom: 8px;
+            }
+
+            .nickname {
+              font-size: 14px;
+              color: #be9edf;
+            }
+          }
+        }
+      }
+    }
+  }
+}

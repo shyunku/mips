@@ -5,9 +5,15 @@ import MainRouter from "./routers/MainRouter";
 import "styles/reset.scss";
 import "styles/index.scss";
 import "styles/default.scss";
+import { Toaster } from "react-hot-toast";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<MainRouter />);
+root.render(
+  <>
+    <Toaster position="top-center" reverseOrder={false} />
+    <MainRouter />
+  </>
+);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
