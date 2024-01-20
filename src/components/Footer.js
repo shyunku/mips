@@ -12,10 +12,8 @@ const Footer = () => {
     return location.pathname.split("/")[1];
   }, [location]);
 
-  // console
-
   const goToHomePage = () => {
-    navigate("/home");
+    navigate("/");
   };
 
   const goToGamePage = () => {
@@ -32,7 +30,7 @@ const Footer = () => {
 
   return (
     <div className="footer">
-      <div className={"menu" + JsxUtil.classByEqual(pageName, "home", "highlight")} onClick={goToHomePage}>
+      <div className={"menu" + JsxUtil.classByEqual(pageName, "", "highlight")} onClick={goToHomePage}>
         <div className="icon">
           <IoHome />
         </div>

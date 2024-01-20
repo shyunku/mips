@@ -5,8 +5,9 @@ import JsxUtil from "util/JsxUtil";
 import toast from "react-hot-toast";
 import { copyToClipboard } from "util/Common";
 import { useNavigate, useParams } from "react-router-dom";
-import { createGameSessionReq, deleteGameSessionReq, getGameReq, getGameSessionReq } from "Requests/Game.req";
 import userStore from "stores/userStore";
+import { createGameSessionReq, deleteGameSessionReq, getGameSessionReq } from "Requests/Session.req";
+import { getGameReq } from "Requests/Game.req";
 
 const GameSession = (props) => {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ const GameSession = (props) => {
   const deleteGame = async () => {
     try {
       await deleteGameSessionReq(session?.id);
-      navigate(`/home`);
+      navigate(`/`);
     } catch (err) {
       console.error(err);
       toast.error("오류가 발생했습니다.");
@@ -154,7 +155,7 @@ const GameSession = (props) => {
                 <div className="participants">
                   {session?.participants.map((e, ind) => {
                     return (
-                      <div className="participant">
+                      <div className="participant" key={e?.uid}>
                         <div className="nickname">{e?.nickname}</div>
                       </div>
                     );

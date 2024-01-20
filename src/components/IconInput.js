@@ -11,12 +11,15 @@ const IconInput = ({
   type = "text",
   ...rest
 }) => {
+  const onInputChange = (e) => {
+    onChange?.(e.target.value);
+  };
   return (
     <div className={"icon-input" + JsxUtil.class(className)} {...rest}>
       <div className="icon" style={{ color: iconColor }}>
         {icon}
       </div>
-      <input type={type} onChange={onChange} value={value} placeholder={placeholder} />
+      <input type={type} onChange={onInputChange} value={value} placeholder={placeholder} />
     </div>
   );
 };

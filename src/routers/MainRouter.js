@@ -14,12 +14,12 @@ const MainRouter = () => {
   return (
     <HashRouter>
       <Routes>
-        <Route path="/" element={<Entry />} />
+        <Route path="/entry" element={<Entry />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route element={<AuthLayout />}>
           <Route element={<HomeLayout />}>
-            <Route path="/home" element={<Home />} />
+            <Route path="/" element={<Home />} />
             <Route path="/games" element={<Games />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/settings" element={<Settings />} />

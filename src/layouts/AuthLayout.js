@@ -22,7 +22,7 @@ const AuthLayout = () => {
   useEffect(() => {
     if (authorizing) return;
     if (!authorized) {
-      navigate("/");
+      navigate("/entry");
     }
   }, [authorized, authorizing, navigate]);
 

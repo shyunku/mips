@@ -60,7 +60,7 @@ export const GameSessionCard = ({ data, active = false }) => {
     }
   };
 
-  console.log(data);
+  // console.log(data);
 
   return (
     <div className={"game-card" + JsxUtil.classByCondition(active, "active")} onClick={goToGameSessionPage}>

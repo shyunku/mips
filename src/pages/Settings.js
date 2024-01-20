@@ -10,7 +10,7 @@ const Settings = () => {
   const logout = () => {
     // TODO :: logout (delete on db)
     user.clear();
-    navigate("/");
+    navigate("/entry");
   };
 
   return (

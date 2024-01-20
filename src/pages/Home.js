@@ -1,4 +1,4 @@
-import { getJoinedSessionsReq } from "Requests/Game.req";
+import { findSessionReq, getJoinedSessionsReq, joinSessionReq } from "Requests/Session.req";
 import Footer from "components/Footer";
 import GameCard, { GameSessionCard } from "components/GameCard";
 import IconInput from "components/IconInput";
@@ -11,6 +11,10 @@ import { SESSION_STATUS } from "types/Common";
 const Home = () => {
   const uid = userStore((state) => state.uid);
   const [sessions, setSessions] = useState([]); // [{id, code, creator, status, game, ...}]
+
+  const [sessionCodeInput, setSessionCodeInput] = useState("");
+  const [needPassword, setNeedPassword] = useState(false);
+  const [foundSession, setFoundSession] = useState(false);
 
   const [waitingSessions, playingSessions, endedSessions] = useMemo(() => {
     const waiting = [];
@@ -36,6 +40,30 @@ const Home = () => {
     return [waiting, playing, ended];
   }, [sessions]);
 
+  const sessionCodeInputHandler = async (e) => {
+    setSessionCodeInput(e);
+    setFoundSession(false);
+    try {
+      const res = await findSessionReq(e);
+      if (res != null && typeof res == "boolean") {
+        setNeedPassword(res);
+        setFoundSession(true);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const joinSession = async () => {
+    try {
+      const res = await joinSessionReq(sessionCodeInput, uid, null);
+      console.log(res);
+      // TODO :: implement
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const getJoinedSessions = async () => {
     try {
       const res = await getJoinedSessionsReq(uid);
@@ -55,14 +83,27 @@ const Home = () => {
       <div className="container join-game">
         <div className="label">게임 참여</div>
         <div className="sub-content">
-          <IconInput className="input" icon={<IoBarcode />} placeholder={"게임 코드를 입력해서 참가하세요."} />
           <IconInput
             className="input"
-            type={"password"}
-            icon={<IoLockClosed />}
-            iconColor="#9D6FFF"
-            placeholder={"해당 게임에 입장하려면 비밀번호를 입력해야합니다."}
+            icon={<IoBarcode />}
+            placeholder={"게임 코드를 입력해서 참가하세요."}
+            value={sessionCodeInput}
+            onChange={(e) => sessionCodeInputHandler(e)}
           />
+          {needPassword && (
+            <IconInput
+              className="input"
+              type={"password"}
+              icon={<IoLockClosed />}
+              iconColor="#9D6FFF"
+              placeholder={"해당 게임에 입장하려면 비밀번호를 입력해야합니다."}
+            />
+          )}
+          {foundSession && (
+            <div className="join-btn" onClick={joinSession}>
+              참여하기
+            </div>
+          )}
         </div>
       </div>
       <div className="container waiting-games games">
