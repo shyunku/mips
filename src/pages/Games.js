@@ -38,6 +38,7 @@ const Games = () => {
             {games.map((e, ind) => (
               <GameCard
                 key={e.name}
+                gid={e.gid}
                 name={e.name}
                 description={e.description}
                 minMembers={e.minMembers}

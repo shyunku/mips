@@ -7,8 +7,8 @@ import HomeLayout from "layouts/HomeLayout";
 import Games from "pages/Games";
 import Favorites from "pages/Favorites";
 import Settings from "pages/Settings";
-import GameCreation from "pages/GameCreation";
 import AuthLayout from "layouts/AuthLayout";
+import GameSession from "pages/GameSession";
 
 const MainRouter = () => {
   return (
@@ -23,7 +23,8 @@ const MainRouter = () => {
             <Route path="/games" element={<Games />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/game-creation" element={<GameCreation />} />
+            <Route path="/game-creation/:gameId" element={<GameSession />} />
+            <Route path="/game-session/:sessionId" element={<GameSession />} />
           </Route>
         </Route>
         {/* TODO :: add 404 page */}

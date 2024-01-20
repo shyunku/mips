@@ -1,6 +1,7 @@
-.header {
-  position: absolute;
-  top: 20px;
+.page-header {
+  display: flex;
+  padding: 15px 0;
+  // top: 20px;
   color: #585858;
   font-size: 13px;
   font-weight: 900;

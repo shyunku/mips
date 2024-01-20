@@ -1,9 +1,55 @@
+import { getJoinedSessionsReq } from "Requests/Game.req";
 import Footer from "components/Footer";
-import GameCard from "components/GameCard";
+import GameCard, { GameSessionCard } from "components/GameCard";
 import IconInput from "components/IconInput";
+import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { IoBarcode, IoLockClosed, IoSearch } from "react-icons/io5";
+import userStore from "stores/userStore";
+import { SESSION_STATUS } from "types/Common";
 
 const Home = () => {
+  const uid = userStore((state) => state.uid);
+  const [sessions, setSessions] = useState([]); // [{id, code, creator, status, game, ...}]
+
+  const [waitingSessions, playingSessions, endedSessions] = useMemo(() => {
+    const waiting = [];
+    const playing = [];
+    const ended = [];
+
+    sessions.forEach((e) => {
+      switch (e.status) {
+        case SESSION_STATUS.WAITING:
+          waiting.push(e);
+          break;
+        case SESSION_STATUS.PLAYING:
+          playing.push(e);
+          break;
+        case SESSION_STATUS.ENDED:
+          ended.push(e);
+          break;
+        default:
+          console.error("Invalid session status");
+          break;
+      }
+    });
+    return [waiting, playing, ended];
+  }, [sessions]);
+
+  const getJoinedSessions = async () => {
+    try {
+      const res = await getJoinedSessionsReq(uid);
+      setSessions(res);
+      console.log(res);
+    } catch (err) {
+      toast.error("세션 목록을 불러오지 못했습니다.");
+    }
+  };
+
+  useEffect(() => {
+    getJoinedSessions();
+  }, []);
+
   return (
     <>
       <div className="container join-game">
@@ -19,27 +65,33 @@ const Home = () => {
           />
         </div>
       </div>
-      <div className="container current-games games">
-        <div className="label">진행 중인 게임 (2)</div>
+      <div className="container waiting-games games">
+        <div className="label">대기 중인 게임 ({waitingSessions.length})</div>
         <div className="sub-content">
           <div className="game-session-list">
-            {Array(2)
-              .fill()
-              .map((e, ind) => (
-                <GameCard key={ind} active={true} />
-              ))}
+            {waitingSessions.map((e, ind) => (
+              <GameSessionCard key={ind} data={e} active={true} />
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="container current-games games">
+        <div className="label">진행 중인 게임 ({playingSessions.length})</div>
+        <div className="sub-content">
+          <div className="game-session-list">
+            {playingSessions.map((e, ind) => (
+              <GameSessionCard key={ind} data={e} active={true} />
+            ))}
           </div>
         </div>
       </div>
       <div className="container previous-games games">
-        <div className="label">지난 게임 (7)</div>
+        <div className="label">지난 게임 {endedSessions.length})</div>
         <div className="sub-content">
           <div className="game-session-list">
-            {Array(7)
-              .fill()
-              .map((e, ind) => (
-                <GameCard key={ind} />
-              ))}
+            {endedSessions.map((e, ind) => (
+              <GameSessionCard key={ind} />
+            ))}
           </div>
         </div>
       </div>

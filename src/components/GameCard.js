@@ -2,12 +2,13 @@ import { IoBarcode, IoPlay, IoStar } from "react-icons/io5";
 import JsxUtil from "util/JsxUtil";
 import "./GameCard.scss";
 import { useNavigate } from "react-router-dom";
+import { SESSION_STATUS } from "types/Common";
 
-const GameCard = ({ name, description, minMembers, maxMembers, active = false }) => {
+const GameCard = ({ gid, name, description, minMembers, maxMembers, active = false }) => {
   const navigate = useNavigate();
 
   const goToCreationPage = () => {
-    navigate("/game-creation");
+    navigate(`/game-creation/${gid}`);
   };
 
   return (
@@ -40,12 +41,26 @@ const GameCard = ({ name, description, minMembers, maxMembers, active = false })
   );
 };
 
-export const GameSessionCard = ({ name, startedAt, participants, code, active = false }) => {
+export const GameSessionCard = ({ data, active = false }) => {
   const navigate = useNavigate();
 
   const goToGameSessionPage = () => {
-    // TODO :: implement
+    switch (data?.status) {
+      case SESSION_STATUS.WAITING:
+        navigate(`/game-session/${data?.id}`);
+        return;
+      case SESSION_STATUS.PLAYING:
+        // TODO :: implement
+        return;
+      case SESSION_STATUS.ENDED:
+        return;
+      default:
+        console.error("Invalid session status");
+        return;
+    }
   };
+
+  console.log(data);
 
   return (
     <div className={"game-card" + JsxUtil.classByCondition(active, "active")} onClick={goToGameSessionPage}>
@@ -53,14 +68,14 @@ export const GameSessionCard = ({ name, startedAt, participants, code, active = 
         <img alt="" src={"https://picsum.photos/200/300"} />
       </div>
       <div className="game-info">
-        <div className="game-name">게임 이름</div>
+        <div className="game-name">{data?.game?.name}</div>
         <div className="game-time">오늘 오후 5시 53분 (1:03:23)</div>
-        <div className="game-players">5명 참여</div>
+        <div className="game-players">{data?.participants?.length ?? 0}명 참여</div>
         <div className="game-code">
           <div className="label">
             <IoBarcode />
           </div>
-          <div className="code">123456</div>
+          <div className="code">{data?.code}</div>
         </div>
       </div>
     </div>
