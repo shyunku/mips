@@ -6,3 +6,8 @@ export const copyToClipboard = async (text) => {
     console.error("Failed to copy: ", err);
   }
 };
+
+export const fastInterval = (callback, delay) => {
+  callback();
+  return setInterval(callback, delay);
+};

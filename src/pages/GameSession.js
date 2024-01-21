@@ -8,10 +8,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import userStore from "stores/userStore";
 import { createGameSessionReq, deleteGameSessionReq, getGameSessionReq } from "Requests/Session.req";
 import { getGameReq } from "Requests/Game.req";
+import socketStore from "stores/socketStore";
+import SocketTopics from "types/SocketTopics";
 
 const GameSession = (props) => {
   const navigate = useNavigate();
   const params = useParams();
+  const socket = socketStore((state) => state.socket);
   const uid = userStore((state) => state.uid);
 
   const gameId = useMemo(() => params.gameId, [params]);
@@ -22,9 +25,13 @@ const GameSession = (props) => {
 
   const [creating, setCreating] = useState(false);
 
+  const creatorMode = useMemo(() => {
+    return gameId != null || session?.creator?.uid === uid;
+  }, [gameId, session?.creator?.uid, uid]);
+
   const createGame = async () => {
     try {
-      const res = await createGameSessionReq(null, uid, null);
+      const res = await createGameSessionReq(null, null);
       const { id, status, code, game } = res;
       console.log("create game", res);
       navigate(`/game-session/${id}`);
@@ -42,7 +49,6 @@ const GameSession = (props) => {
     } catch (err) {
       console.error(err);
       toast.error("오류가 발생했습니다.");
-      setCreating(false);
     }
   };
 
@@ -53,7 +59,7 @@ const GameSession = (props) => {
   const copyCode = () => {
     if (session?.code == null) return;
     toast.success("게임 코드가 복사되었습니다.");
-    copyToClipboard("123456");
+    copyToClipboard(session?.code);
   };
 
   const getGameData = async () => {
@@ -90,6 +96,26 @@ const GameSession = (props) => {
     }
   }, [gameId, sessionId]);
 
+  useEffect(() => {
+    if (socket?.connected) {
+      const onSessionJoin = (data) => {
+        console.log("session join", data);
+        setSession((s) => {
+          return {
+            ...s,
+            participants: [...(s?.participants ?? []), data],
+          };
+        });
+      };
+
+      socket.on(SocketTopics.SESSION_JOIN, onSessionJoin);
+
+      return () => {
+        socket.off(SocketTopics.SESSION_JOIN, onSessionJoin);
+      };
+    }
+  }, [socket?.connected]);
+
   return (
     <>
       <div className="backward" onClick={goBack}>
@@ -110,9 +136,15 @@ const GameSession = (props) => {
               플레이어 {game?.minMembers}~{game?.maxMembers}명
             </div>
             <div className="game-initial-settings">
-              <button className="game-btn" onClick={createGame}>
-                {creating ? "시작하기" : "방 만들기"}
-              </button>
+              {creatorMode ? (
+                <button className="game-btn" onClick={createGame}>
+                  {creating ? "시작하기" : "방 만들기"}
+                </button>
+              ) : (
+                <button className="game-btn leave" onClick={createGame}>
+                  떠나기
+                </button>
+              )}
               <div className="pw-setting">
                 <div className="icon">
                   <IoLockClosed />
@@ -134,26 +166,29 @@ const GameSession = (props) => {
                   <div className="code">{session?.code}</div>
                 </div>
               </div>
-              <div className="setting-section">
-                <div className="session-setting-btn">
-                  <div className="icon">
-                    <IoSettingsSharp />
+              {creatorMode && (
+                <div className="setting-section">
+                  <div className="session-setting-btn">
+                    <div className="icon">
+                      <IoSettingsSharp />
+                    </div>
+                    <div className="label">게임 룰 설정</div>
                   </div>
-                  <div className="label">게임 룰 설정</div>
-                </div>
-                <div className="session-setting-btn dangerous" onClick={deleteGame}>
-                  <div className="icon">
-                    <IoClose />
+                  <div className="session-setting-btn dangerous" onClick={deleteGame}>
+                    <div className="icon">
+                      <IoClose />
+                    </div>
+                    <div className="label">세션 삭제</div>
                   </div>
-                  <div className="label">세션 삭제</div>
                 </div>
-              </div>
+              )}
+
               <div className="participants-section">
                 <div className="label">
                   참여자 ({session?.participants?.length}/{game?.maxMembers})
                 </div>
                 <div className="participants">
-                  {session?.participants.map((e, ind) => {
+                  {(session?.participants ?? []).map((e, ind) => {
                     return (
                       <div className="participant" key={e?.uid}>
                         <div className="nickname">{e?.nickname}</div>

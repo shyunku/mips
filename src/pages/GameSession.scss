@@ -63,6 +63,10 @@
           width: 80px;
           padding: 4px 0;
           color: white;
+
+          &.leave {
+            background-color: #ff3939 !important;
+          }
         }
 
         .pw-setting {

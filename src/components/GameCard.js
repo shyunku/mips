@@ -3,6 +3,9 @@ import JsxUtil from "util/JsxUtil";
 import "./GameCard.scss";
 import { useNavigate } from "react-router-dom";
 import { SESSION_STATUS } from "types/Common";
+import { formatTime, formatTimeShort } from "util/TimeUtil";
+import { useEffect, useMemo, useState } from "react";
+import { fastInterval } from "util/Common";
 
 const GameCard = ({ gid, name, description, minMembers, maxMembers, active = false }) => {
   const navigate = useNavigate();
@@ -43,6 +46,21 @@ const GameCard = ({ gid, name, description, minMembers, maxMembers, active = fal
 
 export const GameSessionCard = ({ data, active = false }) => {
   const navigate = useNavigate();
+  const [updater, setUpdater] = useState(0);
+
+  const description = useMemo(() => {
+    if (data?.status == null) return null;
+    switch (data?.status) {
+      case SESSION_STATUS.WAITING:
+        return `${formatTime(data?.createdAt)} (대기 중)`;
+      case SESSION_STATUS.PLAYING:
+        return `게임 중 (${formatTimeShort(data?.startedAt)})`;
+      case SESSION_STATUS.ENDED:
+        return `${formatTime(data?.endedAt)} (종료됨)`;
+      default:
+        return null;
+    }
+  }, [data?.createdAt, data?.status, updater]);
 
   const goToGameSessionPage = () => {
     switch (data?.status) {
@@ -60,7 +78,14 @@ export const GameSessionCard = ({ data, active = false }) => {
     }
   };
 
-  // console.log(data);
+  useEffect(() => {
+    const t = fastInterval(() => {
+      setUpdater((e) => ++e);
+    }, 1000);
+    return () => {
+      clearInterval(t);
+    };
+  }, []);
 
   return (
     <div className={"game-card" + JsxUtil.classByCondition(active, "active")} onClick={goToGameSessionPage}>
@@ -69,7 +94,7 @@ export const GameSessionCard = ({ data, active = false }) => {
       </div>
       <div className="game-info">
         <div className="game-name">{data?.game?.name}</div>
-        <div className="game-time">오늘 오후 5시 53분 (1:03:23)</div>
+        <div className="game-time">{description}</div>
         <div className="game-players">{data?.participants?.length ?? 0}명 참여</div>
         <div className="game-code">
           <div className="label">

@@ -1,20 +1,19 @@
 import axios from "axios";
-import { resolveUrl } from "./Common";
+import { reqInstance, resolveUrl } from "./Common";
 
 export const findSessionReq = async (code) => {
   try {
-    const resp = await axios.post(resolveUrl(`session/find`), { code });
+    const resp = await reqInstance.post(`session/find`, { code });
     return resp.data;
   } catch (err) {
     throw err;
   }
 };
 
-export const joinSessionReq = async (code, uid, password) => {
+export const joinSessionReq = async (code, password) => {
   try {
-    const resp = await axios.post(resolveUrl(`session/join`), {
+    const resp = await reqInstance.post(`session/join`, {
       code,
-      uid,
       password,
     });
     return resp.data;
@@ -23,9 +22,9 @@ export const joinSessionReq = async (code, uid, password) => {
   }
 };
 
-export const getJoinedSessionsReq = async (uid) => {
+export const getJoinedSessionsReq = async () => {
   try {
-    const resp = await axios.get(resolveUrl(`session/sessions?uid=${uid}`));
+    const resp = await reqInstance.get(`session/sessions`);
     return resp.data;
   } catch (err) {
     throw err;
@@ -34,18 +33,17 @@ export const getJoinedSessionsReq = async (uid) => {
 
 export const getGameSessionReq = async (sessionId) => {
   try {
-    const resp = await axios.get(resolveUrl(`session?sessionId=${sessionId}`));
+    const resp = await reqInstance.get(`session?sessionId=${sessionId}`);
     return resp.data;
   } catch (err) {
     throw err;
   }
 };
 
-export const createGameSessionReq = async (gameId, uid, password) => {
+export const createGameSessionReq = async (gameId, password) => {
   try {
-    const resp = await axios.post(resolveUrl("session/create"), {
+    const resp = await reqInstance.post("session/create", {
       gameId,
-      uid,
       password,
     });
     return resp.data;
@@ -56,7 +54,7 @@ export const createGameSessionReq = async (gameId, uid, password) => {
 
 export const deleteGameSessionReq = async (sessionId) => {
   try {
-    const resp = await axios.delete(resolveUrl(`session?sessionId=${sessionId}`));
+    const resp = await reqInstance.delete(resolveUrl(`session?sessionId=${sessionId}`));
     return resp.data;
   } catch (err) {
     throw err;

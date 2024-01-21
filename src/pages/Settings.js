@@ -2,15 +2,22 @@ import { IoLogOut } from "react-icons/io5";
 import "./Settings.scss";
 import userStore from "stores/userStore";
 import { useNavigate } from "react-router-dom";
+import { signOutReq } from "Requests/User.req";
+import socketStore from "stores/socketStore";
 
 const Settings = () => {
   const navigate = useNavigate();
   const user = userStore((state) => state);
 
-  const logout = () => {
-    // TODO :: logout (delete on db)
-    user.clear();
-    navigate("/entry");
+  const logout = async () => {
+    try {
+      await signOutReq();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      user.clear();
+      navigate("/entry");
+    }
   };
 
   return (

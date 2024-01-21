@@ -5,10 +5,12 @@ import IconInput from "components/IconInput";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { IoBarcode, IoLockClosed, IoSearch } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 import userStore from "stores/userStore";
 import { SESSION_STATUS } from "types/Common";
 
 const Home = () => {
+  const navigate = useNavigate();
   const uid = userStore((state) => state.uid);
   const [sessions, setSessions] = useState([]); // [{id, code, creator, status, game, ...}]
 
@@ -37,6 +39,12 @@ const Home = () => {
           break;
       }
     });
+
+    // sort
+    const dateDescSorter = (a, b) => new Date(b.createdAt) - new Date(a.createdAt);
+    waiting.sort(dateDescSorter);
+    playing.sort(dateDescSorter);
+    ended.sort(dateDescSorter);
     return [waiting, playing, ended];
   }, [sessions]);
 
@@ -56,9 +64,10 @@ const Home = () => {
 
   const joinSession = async () => {
     try {
-      const res = await joinSessionReq(sessionCodeInput, uid, null);
-      console.log(res);
-      // TODO :: implement
+      const res = await joinSessionReq(sessionCodeInput, null);
+      const { id: sessionId } = res;
+      console.log("join session", res);
+      navigate(`/game-session/${sessionId}`);
     } catch (err) {
       console.error(err);
     }
@@ -66,7 +75,7 @@ const Home = () => {
 
   const getJoinedSessions = async () => {
     try {
-      const res = await getJoinedSessionsReq(uid);
+      const res = await getJoinedSessionsReq();
       setSessions(res);
       console.log(res);
     } catch (err) {
@@ -127,7 +136,7 @@ const Home = () => {
         </div>
       </div>
       <div className="container previous-games games">
-        <div className="label">지난 게임 {endedSessions.length})</div>
+        <div className="label">지난 게임 ({endedSessions.length})</div>
         <div className="sub-content">
           <div className="game-session-list">
             {endedSessions.map((e, ind) => (

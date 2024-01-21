@@ -1,9 +1,9 @@
 import axios from "axios";
-import { resolveUrl } from "./Common";
+import { reqInstance, resolveUrl } from "./Common";
 
 export const getGameReq = async (gid) => {
   try {
-    const resp = await axios.get(resolveUrl(`game?id=${gid}`));
+    const resp = await reqInstance.get(`game?id=${gid}`);
     return resp.data;
   } catch (err) {
     throw err;
@@ -12,7 +12,7 @@ export const getGameReq = async (gid) => {
 
 export const getAllGamesReq = async () => {
   try {
-    const resp = await axios.get(resolveUrl("game/all"));
+    const resp = await reqInstance.get("game/all");
     return resp.data;
   } catch (err) {
     throw err;
