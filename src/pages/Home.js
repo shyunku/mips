@@ -6,13 +6,16 @@ import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { IoBarcode, IoLockClosed, IoSearch } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import socketStore from "stores/socketStore";
 import userStore from "stores/userStore";
 import { SESSION_STATUS } from "types/Common";
+import SocketTopics from "types/SocketTopics";
 
 const Home = () => {
   const navigate = useNavigate();
   const uid = userStore((state) => state.uid);
   const [sessions, setSessions] = useState([]); // [{id, code, creator, status, game, ...}]
+  const socket = socketStore((state) => state.socket);
 
   const [sessionCodeInput, setSessionCodeInput] = useState("");
   const [needPassword, setNeedPassword] = useState(false);
@@ -87,6 +90,21 @@ const Home = () => {
     getJoinedSessions();
   }, []);
 
+  useEffect(() => {
+    if (socket?.connected) {
+      const onSessionEnd = (sessionId) => {
+        setSessions((s) => s.map((e) => (e.id === sessionId ? { ...e, status: SESSION_STATUS.ENDED } : e)));
+        console.log("session end", sessionId);
+      };
+
+      socket.on(SocketTopics.SESSION_END, onSessionEnd);
+
+      return () => {
+        socket.off(SocketTopics.SESSION_END, onSessionEnd);
+      };
+    }
+  }, [socket]);
+
   return (
     <>
       <div className="container join-game">
@@ -120,7 +138,7 @@ const Home = () => {
         <div className="sub-content">
           <div className="game-session-list">
             {waitingSessions.map((e, ind) => (
-              <GameSessionCard key={ind} data={e} active={true} />
+              <GameSessionCard key={ind} data={e} />
             ))}
           </div>
         </div>
@@ -130,7 +148,7 @@ const Home = () => {
         <div className="sub-content">
           <div className="game-session-list">
             {playingSessions.map((e, ind) => (
-              <GameSessionCard key={ind} data={e} active={true} />
+              <GameSessionCard key={ind} data={e} />
             ))}
           </div>
         </div>
@@ -140,7 +158,7 @@ const Home = () => {
         <div className="sub-content">
           <div className="game-session-list">
             {endedSessions.map((e, ind) => (
-              <GameSessionCard key={ind} />
+              <GameSessionCard key={ind} data={e} />
             ))}
           </div>
         </div>

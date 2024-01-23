@@ -10,18 +10,6 @@ export const findSessionReq = async (code) => {
   }
 };
 
-export const joinSessionReq = async (code, password) => {
-  try {
-    const resp = await reqInstance.post(`session/join`, {
-      code,
-      password,
-    });
-    return resp.data;
-  } catch (err) {
-    throw err;
-  }
-};
-
 export const getJoinedSessionsReq = async () => {
   try {
     const resp = await reqInstance.get(`session/sessions`);
@@ -45,6 +33,51 @@ export const createGameSessionReq = async (gameId, password) => {
     const resp = await reqInstance.post("session/create", {
       gameId,
       password,
+    });
+    return resp.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const joinSessionReq = async (code, password) => {
+  try {
+    const resp = await reqInstance.post(`session/join`, {
+      code,
+      password,
+    });
+    return resp.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const leaveSessionReq = async (sessionId) => {
+  try {
+    const resp = await reqInstance.post(`session/leave`, {
+      sessionId,
+    });
+    return resp.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const startGameSessionReq = async (sessionId) => {
+  try {
+    const resp = await reqInstance.post("session/start", {
+      sessionId,
+    });
+    return resp.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const endGameSessionReq = async (sessionId) => {
+  try {
+    const resp = await reqInstance.post("session/end", {
+      sessionId,
     });
     return resp.data;
   } catch (err) {

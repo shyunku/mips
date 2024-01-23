@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import io from "socket.io-client";
 import userStore from "./userStore";
+import SocketTopics from "types/SocketTopics";
 
 const SERVER_HOST = process.env.REACT_APP_SERVER_HOST;
 const SERVER_SOCKET_PORT = process.env.REACT_APP_SERVER_SOCKET_PORT;
@@ -69,6 +70,10 @@ const invokeSocket = () => {
   socket.on("message", (msg) => {
     console.log(msg);
   });
+
+  socket.emitSession = (sessionId, topic, ...args) => {
+    socket?.emit(SocketTopics.SESSION_INGAME, parseInt(sessionId), topic, ...args);
+  };
 
   socketStore.setState({ socket });
 };

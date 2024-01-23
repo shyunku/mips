@@ -9,6 +9,8 @@ import Favorites from "pages/Favorites";
 import Settings from "pages/Settings";
 import AuthLayout from "layouts/AuthLayout";
 import GameSession from "pages/GameSession";
+import GameLayout from "layouts/GameLayout";
+import GameTenSeconds from "components/games/ten-seconds/Main";
 
 const MainRouter = () => {
   return (
@@ -25,6 +27,9 @@ const MainRouter = () => {
             <Route path="/settings" element={<Settings />} />
             <Route path="/game-creation/:gameId" element={<GameSession />} />
             <Route path="/game-session/:sessionId" element={<GameSession />} />
+          </Route>
+          <Route element={<GameLayout />}>
+            <Route path="/game/1/:sessionId" element={<GameTenSeconds />} />
           </Route>
         </Route>
         {/* TODO :: add 404 page */}

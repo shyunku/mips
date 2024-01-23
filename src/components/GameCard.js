@@ -17,7 +17,7 @@ const GameCard = ({ gid, name, description, minMembers, maxMembers, active = fal
   return (
     <div className={"game-card" + JsxUtil.classByCondition(active, "active")} onClick={goToCreationPage}>
       <div className="game-image img">
-        <img alt="" src={"https://picsum.photos/200/300"} />
+        <img alt="" src={`/assets/img/session/${gid}.png`} />
       </div>
       <div className="game-info">
         <div className="game-name">{name}</div>
@@ -44,7 +44,7 @@ const GameCard = ({ gid, name, description, minMembers, maxMembers, active = fal
   );
 };
 
-export const GameSessionCard = ({ data, active = false }) => {
+export const GameSessionCard = ({ data, interactive = true }) => {
   const navigate = useNavigate();
   const [updater, setUpdater] = useState(0);
 
@@ -63,12 +63,13 @@ export const GameSessionCard = ({ data, active = false }) => {
   }, [data?.createdAt, data?.status, updater]);
 
   const goToGameSessionPage = () => {
+    if (interactive === false) return;
     switch (data?.status) {
       case SESSION_STATUS.WAITING:
         navigate(`/game-session/${data?.id}`);
         return;
       case SESSION_STATUS.PLAYING:
-        // TODO :: implement
+        navigate(`/game/${data?.game?.gid}/${data?.id}`);
         return;
       case SESSION_STATUS.ENDED:
         return;
@@ -88,9 +89,12 @@ export const GameSessionCard = ({ data, active = false }) => {
   }, []);
 
   return (
-    <div className={"game-card" + JsxUtil.classByCondition(active, "active")} onClick={goToGameSessionPage}>
+    <div
+      className={"game-card" + JsxUtil.classByNonEqual(data?.status, SESSION_STATUS.ENDED, "active")}
+      onClick={goToGameSessionPage}
+    >
       <div className="game-image img">
-        <img alt="" src={"https://picsum.photos/200/300"} />
+        <img alt="" src={`/assets/img/session/${data?.game?.gid}.png`} />
       </div>
       <div className="game-info">
         <div className="game-name">{data?.game?.name}</div>

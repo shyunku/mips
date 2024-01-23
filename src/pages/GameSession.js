@@ -1,4 +1,13 @@
-import { IoArrowBack, IoBarcode, IoClose, IoCopy, IoLockClosed, IoSearch, IoSettingsSharp } from "react-icons/io5";
+import {
+  IoArrowBack,
+  IoBarcode,
+  IoClose,
+  IoCopy,
+  IoLockClosed,
+  IoPeople,
+  IoSearch,
+  IoSettingsSharp,
+} from "react-icons/io5";
 import "./GameSession.scss";
 import { useEffect, useMemo, useState } from "react";
 import JsxUtil from "util/JsxUtil";
@@ -6,12 +15,20 @@ import toast from "react-hot-toast";
 import { copyToClipboard } from "util/Common";
 import { useNavigate, useParams } from "react-router-dom";
 import userStore from "stores/userStore";
-import { createGameSessionReq, deleteGameSessionReq, getGameSessionReq } from "Requests/Session.req";
+import {
+  createGameSessionReq,
+  deleteGameSessionReq,
+  getGameSessionReq,
+  leaveSessionReq,
+  startGameSessionReq,
+} from "Requests/Session.req";
 import { getGameReq } from "Requests/Game.req";
 import socketStore from "stores/socketStore";
 import SocketTopics from "types/SocketTopics";
+import GoBackButton from "molecules/GoBackButton";
+import { FaCrown } from "react-icons/fa";
 
-const GameSession = (props) => {
+const GameSession = () => {
   const navigate = useNavigate();
   const params = useParams();
   const socket = socketStore((state) => state.socket);
@@ -22,6 +39,7 @@ const GameSession = (props) => {
 
   const [session, setSession] = useState(null); // {id, code, creator, status, game, ...}
   const [game, setGame] = useState(null); // {gid, name, description, minMembers, maxMembers, ...}
+  const creatorUid = useMemo(() => session?.creator?.uid, [session?.creator?.uid]);
 
   const [creating, setCreating] = useState(false);
 
@@ -42,6 +60,16 @@ const GameSession = (props) => {
     }
   };
 
+  const leaveGame = async () => {
+    try {
+      await leaveSessionReq(session?.id);
+      navigate(`/`);
+    } catch (err) {
+      console.error(err);
+      toast.error("오류가 발생했습니다.");
+    }
+  };
+
   const deleteGame = async () => {
     try {
       await deleteGameSessionReq(session?.id);
@@ -50,10 +78,6 @@ const GameSession = (props) => {
       console.error(err);
       toast.error("오류가 발생했습니다.");
     }
-  };
-
-  const goBack = () => {
-    navigate(-1);
   };
 
   const copyCode = () => {
@@ -85,6 +109,16 @@ const GameSession = (props) => {
     }
   };
 
+  const startSession = async () => {
+    try {
+      await startGameSessionReq(session?.id);
+      navigate(`/game/${game?.gid}/${session?.id}`);
+    } catch (err) {
+      console.error(err);
+      toast.error("오류가 발생했습니다.");
+    }
+  };
+
   useEffect(() => {
     if (sessionId != null) {
       getSessionData();
@@ -108,26 +142,47 @@ const GameSession = (props) => {
         });
       };
 
+      const onSessionLeave = (leaverUid) => {
+        console.log("session leave", leaverUid);
+        setSession((s) => {
+          return {
+            ...s,
+            participants: s?.participants?.filter((e) => e?.uid !== leaverUid),
+          };
+        });
+      };
+
+      const onSessionStart = () => {
+        toast.success("게임이 시작되었습니다.");
+        navigate(`/game/${game?.gid}/${session?.id}`);
+      };
+
+      const onSessionEnd = () => {
+        toast.success("게임이 종료되었습니다.");
+        navigate("/");
+      };
+
       socket.on(SocketTopics.SESSION_JOIN, onSessionJoin);
+      socket.on(SocketTopics.SESSION_LEAVE, onSessionLeave);
+      socket.on(SocketTopics.SESSION_START, onSessionStart);
+      socket.on(SocketTopics.SESSION_END, onSessionEnd);
 
       return () => {
         socket.off(SocketTopics.SESSION_JOIN, onSessionJoin);
+        socket.off(SocketTopics.SESSION_LEAVE, onSessionLeave);
+        socket.off(SocketTopics.SESSION_START, onSessionStart);
+        socket.off(SocketTopics.SESSION_END, onSessionEnd);
       };
     }
-  }, [socket?.connected]);
+  }, [socket, game, session, navigate]);
 
   return (
     <>
-      <div className="backward" onClick={goBack}>
-        <div className="icon">
-          <IoArrowBack />
-        </div>
-        <div className="label">뒤로가기</div>
-      </div>
+      <GoBackButton />
       <div className={"game-creation card" + JsxUtil.classByCondition(creating, "creating")}>
         <div className="header game-card">
           <div className="game-image img">
-            <img alt="" src={"https://picsum.photos/200/300"} />
+            <img alt="" src={`/assets/img/session/${game?.gid}.png`} />
           </div>
           <div className="game-info">
             <div className="game-name">{game?.name}</div>
@@ -137,11 +192,11 @@ const GameSession = (props) => {
             </div>
             <div className="game-initial-settings">
               {creatorMode ? (
-                <button className="game-btn" onClick={createGame}>
+                <button className="game-btn" onClick={creating ? startSession : createGame}>
                   {creating ? "시작하기" : "방 만들기"}
                 </button>
               ) : (
-                <button className="game-btn leave" onClick={createGame}>
+                <button className="game-btn leave" onClick={leaveGame}>
                   떠나기
                 </button>
               )}
@@ -188,13 +243,19 @@ const GameSession = (props) => {
                   참여자 ({session?.participants?.length}/{game?.maxMembers})
                 </div>
                 <div className="participants">
-                  {(session?.participants ?? []).map((e, ind) => {
-                    return (
-                      <div className="participant" key={e?.uid}>
-                        <div className="nickname">{e?.nickname}</div>
-                      </div>
-                    );
-                  })}
+                  {(session?.participants ?? [])
+                    .sort((a, b) => (b?.uid === creatorUid) - (a?.uid === creatorUid))
+                    .map((e, ind) => {
+                      return (
+                        <div className={"participant" + JsxUtil.classByEqual(e?.uid, uid, "me")} key={e?.uid}>
+                          <div className="icon">{e?.uid === creatorUid ? <FaCrown /> : <IoPeople />}</div>
+                          <div className="nickname">
+                            {e?.nickname}
+                            {e?.uid === uid ? " (나)" : ""}
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             </div>

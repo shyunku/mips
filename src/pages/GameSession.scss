@@ -215,16 +215,25 @@
           .participant {
             display: flex;
             padding: 12px 12px;
-            background-color: #442959;
+            background-color: #46285e;
             border-radius: 10px;
+            color: #be9edf;
+            font-size: 13px;
 
             &:not(:last-child) {
               margin-bottom: 10px;
             }
 
+            &.me {
+              background-color: rgb(28, 105, 28);
+              color: white;
+            }
+
+            .icon {
+            }
+
             .nickname {
-              font-size: 14px;
-              color: #be9edf;
+              margin-left: 10px;
             }
           }
         }
