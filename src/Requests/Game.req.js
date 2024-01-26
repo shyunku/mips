@@ -18,3 +18,14 @@ export const getAllGamesReq = async () => {
     throw err;
   }
 };
+
+export const findGameReq = async (keyword) => {
+  try {
+    const resp = await reqInstance.post(`game/find`, {
+      keyword,
+    });
+    return resp.data;
+  } catch (err) {
+    throw err;
+  }
+};

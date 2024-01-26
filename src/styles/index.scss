@@ -3,12 +3,14 @@
 html,
 body,
 #root {
+  display: flex;
   height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
   background: black;
   color: white;
+  overflow: hidden;
 
   font-family: "Noto Sans KR", sans-serif;
 }
@@ -20,6 +22,7 @@ body,
   height: 100%;
   align-items: center;
   position: relative;
+  overflow: hidden;
 
   & > .content {
     display: flex;
@@ -29,7 +32,8 @@ body,
     padding: 10px 24px 24px;
     // margin-top: 28px;
     // margin-bottom: 50px;
-    overflow: scroll;
+    overflow: auto;
+    overflow-x: hidden;
     box-sizing: border-box;
 
     .container {
@@ -148,5 +152,18 @@ body,
       display: flex;
       flex-direction: column;
     }
+  }
+}
+
+*::-webkit-scrollbar {
+  width: 5px;
+
+  &-track {
+    // background: red;
+  }
+
+  &-thumb {
+    background: rgba(202, 170, 255, 0.261);
+    border-radius: 10px;
   }
 }

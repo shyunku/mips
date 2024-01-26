@@ -8,6 +8,8 @@ import "styles/default.scss";
 import { Toaster } from "react-hot-toast";
 import socketStore from "stores/socketStore";
 import userStore from "stores/userStore";
+import { Modaler } from "molecules/Modal";
+import ModalRouter from "routers/ModalRouter";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 socketStore.getState().initialize();
@@ -15,6 +17,7 @@ console.log("User: ", userStore.getState().nickname);
 root.render(
   <>
     <Toaster position="top-center" reverseOrder={false} />
+    <ModalRouter />
     <MainRouter />
   </>
 );

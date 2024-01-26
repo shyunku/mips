@@ -13,6 +13,9 @@ import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import socketStore from "stores/socketStore";
 import useRepaint from "hooks/useRepaint";
 import RateDoughnut from "components/RateDoughnut";
+import { openModal } from "molecules/Modal";
+import { MODAL_TYPES } from "routers/ModalRouter";
+import { printf } from "util/Common";
 
 const TOPICS = {
   START_COUNTER: "ten-seconds/start-counter",
@@ -83,6 +86,7 @@ const DashBoard = ({ sessionId }) => {
   const [status, setStatus] = useState(0);
   const [stoppedAt, setStoppedAt] = useState(null);
   const [rating, setRating] = useState(null); // [uid, rating
+  const uid = userStore((state) => state.uid);
 
   useRepaint();
 
@@ -107,11 +111,27 @@ const DashBoard = ({ sessionId }) => {
       };
       const onCounterEnded = (data) => {
         console.log("counter ended", data);
-        const { sessionId: sid, rating } = data;
+        const { sessionId: sid, results } = data;
         if (sessionId != sid) return;
+
         setStatus(STATUS.ENDED);
-        setRating(rating);
+        for (let i = 0; i < results.length; i++) {
+          const result = results[i];
+          if (result.uid == uid) {
+            setRating(result.rating);
+            break;
+          }
+        }
+        printf("results", results);
         toast.success("카운트가 종료되었습니다.");
+
+        setTimeout(() => {
+          openModal(MODAL_TYPES.TEN_SECONDS.RESULT, {
+            state: {
+              results,
+            },
+          });
+        }, 500);
       };
       const onInitialize = () => {
         console.log("initialize");
@@ -165,6 +185,18 @@ const DashBoard = ({ sessionId }) => {
           </button>
         </div>
       </div>
+      <button
+        onClick={(e) => {
+          openModal(MODAL_TYPES.TEN_SECONDS.RESULT, {
+            state: {
+              rand: Math.random(),
+              time: Date.now(),
+            },
+          });
+        }}
+      >
+        test
+      </button>
       <div className="game-rule">
         <div className="title">게임 규칙</div>
         <div className="description">10초에 가장 근접하여 STOP한 사람이 승리합니다!</div>
@@ -214,7 +246,8 @@ const Settings = ({ sessionId, goToDashboard }) => {
   const initializeSession = async () => {
     try {
       socket?.emitSession(sessionId, TOPICS.INITIALIZE);
-      goToDashboard();
+      // goToDashboard();
+      toast.success("게임이 초기화되었습니다.");
     } catch (err) {
       console.error(err);
       toast.error("오류가 발생했습니다.");

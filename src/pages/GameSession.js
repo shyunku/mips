@@ -49,6 +49,7 @@ const GameSession = () => {
 
   const createGame = async () => {
     try {
+      console.log("create game");
       const res = await createGameSessionReq(null, null);
       const { id, status, code, game } = res;
       console.log("create game", res);
@@ -180,7 +181,7 @@ const GameSession = () => {
     <>
       <GoBackButton />
       <div className={"game-creation card" + JsxUtil.classByCondition(creating, "creating")}>
-        <div className="header game-card">
+        <div className={"header game-card" + JsxUtil.classByCondition(game?.deployed, "deployed")}>
           <div className="game-image img">
             <img alt="" src={`/assets/img/session/${game?.gid}.png`} />
           </div>

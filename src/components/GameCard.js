@@ -1,4 +1,4 @@
-import { IoBarcode, IoPlay, IoStar } from "react-icons/io5";
+import { IoBarcode, IoPlay, IoStar, IoStarOutline } from "react-icons/io5";
 import JsxUtil from "util/JsxUtil";
 import "./GameCard.scss";
 import { useNavigate } from "react-router-dom";
@@ -6,37 +6,56 @@ import { SESSION_STATUS } from "types/Common";
 import { formatTime, formatTimeShort } from "util/TimeUtil";
 import { useEffect, useMemo, useState } from "react";
 import { fastInterval } from "util/Common";
+import { toggleFavoriteReq } from "Requests/Favorite.req";
 
-const GameCard = ({ gid, name, description, minMembers, maxMembers, active = false }) => {
+const GameCard = ({ game }) => {
   const navigate = useNavigate();
+  const [favorited, setFavorited] = useState(game?.favorited ?? false);
 
   const goToCreationPage = () => {
-    navigate(`/game-creation/${gid}`);
+    navigate(`/game-creation/${game?.gid}`);
+  };
+
+  const toggleFavorite = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      await toggleFavoriteReq(game?.gid);
+      setFavorited((favorited) => {
+        game.favorites += favorited ? -1 : 1;
+        return !favorited;
+      });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
-    <div className={"game-card" + JsxUtil.classByCondition(active, "active")} onClick={goToCreationPage}>
+    <div
+      className={"game-card" + JsxUtil.classByCondition(game?.deployed, "deployed")}
+      onClick={game?.deployed ? goToCreationPage : null}
+    >
       <div className="game-image img">
-        <img alt="" src={`/assets/img/session/${gid}.png`} />
+        <img alt="" src={`/assets/img/session/${game?.gid}.png`} />
       </div>
+      {game?.deployed !== true && <div className="placeholder">준비 중입니다.</div>}
       <div className="game-info">
-        <div className="game-name">{name}</div>
-        <div className="game-description">{description}</div>
+        <div className="game-name">{game?.name}</div>
+        <div className="game-description">{game?.description}</div>
         <div className="game-players">
-          플레이어 {minMembers}~{maxMembers}명
+          플레이어 {game?.minMembers}~{game?.maxMembers}명
         </div>
         <div className="statistic">
-          <div className="game-favorites">
-            <div className="icon">
-              <IoStar />
-            </div>
-            <div className="label">0</div>
+          <div className="game-favorites" onClick={toggleFavorite}>
+            <div className="icon">{favorited ? <IoStar /> : <IoStarOutline />}</div>
+            <div className="label">{game?.favorites ?? 0}</div>
           </div>
           <div className="game-played">
             <div className="icon">
               <IoPlay />
             </div>
-            <div className="label">0</div>
+            <div className="label">{game?.played ?? 0}</div>
           </div>
         </div>
       </div>

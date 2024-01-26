@@ -1,13 +1,15 @@
-import { getAllGamesReq } from "Requests/Game.req";
+import { findGameReq, getAllGamesReq } from "Requests/Game.req";
 import Footer from "components/Footer";
 import GameCard from "components/GameCard";
 import IconInput from "components/IconInput";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { IoBarcode, IoLockClosed, IoSearch } from "react-icons/io5";
 
 const Games = () => {
   const [games, setGames] = useState([]);
+  const [gameSearchInput, setGameSearchInput] = useState("");
+  const showDefaultMode = useMemo(() => gameSearchInput.length === 0, [gameSearchInput]);
 
   const fetchAllGames = useCallback(async () => {
     try {
@@ -20,6 +22,24 @@ const Games = () => {
     }
   }, []);
 
+  const onGameSearchInputChange = useCallback(
+    async (e) => {
+      const trimmed = e.trim();
+      setGameSearchInput(trimmed);
+      try {
+        if (trimmed.length === 0) {
+          await fetchAllGames();
+          return;
+        }
+        const res = await findGameReq(trimmed);
+        setGames(res);
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    [fetchAllGames]
+  );
+
   useEffect(() => {
     fetchAllGames();
   }, [fetchAllGames]);
@@ -28,22 +48,23 @@ const Games = () => {
     <>
       <div className="container join-game">
         <div className="sub-content">
-          <IconInput className="input" icon={<IoSearch />} placeholder={"게임을 검색해보세요."} />
+          <IconInput
+            className="input"
+            icon={<IoSearch />}
+            placeholder={"게임을 검색해보세요."}
+            value={gameSearchInput}
+            onChange={onGameSearchInputChange}
+          />
         </div>
       </div>
       <div className="container current-games games">
-        <div className="label">검색된 게임 ({games.length})</div>
+        <div className="label">
+          {showDefaultMode ? "모든" : "검색된"} 게임 ({games.length})
+        </div>
         <div className="sub-content">
           <div className="game-session-list">
             {games.map((e, ind) => (
-              <GameCard
-                key={e.name}
-                gid={e.gid}
-                name={e.name}
-                description={e.description}
-                minMembers={e.minMembers}
-                maxMembers={e.maxMembers}
-              />
+              <GameCard key={e.gid} game={e} />
             ))}
           </div>
         </div>
