@@ -26,12 +26,16 @@ const ResultModal = ({ state, ...props }) => {
             <div className="rank">순위</div>
           </div>
           {results
-            .sort((a, b) => (b?.stopAt ?? 0) - (a?.stopAt ?? 0))
+            .sort((a, b) => {
+              if (a?.rating == null) return -1;
+              if (b?.rating == null) return -1;
+              return (b?.stopAt ?? 0) - (a?.stopAt ?? 0);
+            })
             .map((e) => {
               return (
                 <div className={"result-item" + JsxUtil.classByEqual(e?.uid, uid, "me")}>
                   <div className="name">{e?.nickname}</div>
-                  <div className="time">{e?.stopAt ?? "-"}</div>
+                  <div className="time">{e?.stopAt ?? "-"}초</div>
                   <div className="rank">{e?.rating != null ? `${e?.rating}위` : "버스트"}</div>
                 </div>
               );

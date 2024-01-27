@@ -13,11 +13,11 @@ const Login = () => {
 
   return (
     <div className="login page">
-      <div className="mips">MIPS</div>
+      {/* <div className="mips">MIPS</div> */}
       <div className="label">로그인</div>
       <div className="input-container">
-        <input type="text" placeholder="아이디" />
-        <input type="password" placeholder="비밀번호" />
+        <input className="main-input" type="text" placeholder="아이디" />
+        <input className="main-input" type="password" placeholder="비밀번호" />
         <div className="sign-up" onClick={goToSignupPage}>
           아직 회원이 아니신가요?
         </div>

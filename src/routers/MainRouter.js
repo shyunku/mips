@@ -11,6 +11,7 @@ import AuthLayout from "layouts/AuthLayout";
 import GameSession from "pages/GameSession";
 import GameLayout from "layouts/GameLayout";
 import GameTenSeconds from "components/games/ten-seconds/Main";
+import InitialNickname from "pages/InitialNickname";
 
 const MainRouter = () => {
   return (
@@ -19,6 +20,7 @@ const MainRouter = () => {
         <Route path="/entry" element={<Entry />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/initial-nickname" element={<InitialNickname />} />
         <Route element={<AuthLayout />}>
           <Route element={<HomeLayout />}>
             <Route path="/" element={<Home />} />

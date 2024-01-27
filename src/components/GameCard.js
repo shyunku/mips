@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { SESSION_STATUS } from "types/Common";
 import { formatTime, formatTimeShort } from "util/TimeUtil";
 import { useEffect, useMemo, useState } from "react";
-import { fastInterval } from "util/Common";
+import { fastInterval, printf } from "util/Common";
 import { toggleFavoriteReq } from "Requests/Favorite.req";
 
 const GameCard = ({ game }) => {
@@ -109,7 +109,11 @@ export const GameSessionCard = ({ data, interactive = true }) => {
 
   return (
     <div
-      className={"game-card" + JsxUtil.classByNonEqual(data?.status, SESSION_STATUS.ENDED, "active")}
+      className={
+        "game-card" +
+        JsxUtil.classByNonEqual(data?.status, SESSION_STATUS.ENDED, "active") +
+        JsxUtil.classByCondition(data?.game?.deployed, "deployed")
+      }
       onClick={goToGameSessionPage}
     >
       <div className="game-image img">

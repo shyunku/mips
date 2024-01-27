@@ -28,3 +28,7 @@ export const formatTimeShort = (date) => {
   const diffFormatted = moment.utc(diff).format("HH:mm:ss");
   return diffFormatted;
 };
+
+export const microNow = () => {
+  return performance.now() / 1000;
+};

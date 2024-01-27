@@ -16,12 +16,11 @@ import RateDoughnut from "components/RateDoughnut";
 import { openModal } from "molecules/Modal";
 import { MODAL_TYPES } from "routers/ModalRouter";
 import { printf } from "util/Common";
+import { microNow } from "util/TimeUtil";
+import { SessionTopics } from "types/SocketTopics";
 
 const TOPICS = {
-  START_COUNTER: "ten-seconds/start-counter",
   STOP_COUNTER: "ten-seconds/stop-counter",
-  COUNTER_ENDED: "ten-seconds/counter-ended",
-  INITIALIZE: "ten-seconds/initialize",
 };
 
 const STATUS = {
@@ -87,12 +86,13 @@ const DashBoard = ({ sessionId }) => {
   const [stoppedAt, setStoppedAt] = useState(null);
   const [rating, setRating] = useState(null); // [uid, rating
   const uid = userStore((state) => state.uid);
+  const counterTime = counterStartTime != null ? microNow() - counterStartTime : 0;
 
   useRepaint();
 
   const stopCounter = async () => {
     try {
-      const stopwatch = (Date.now() - counterStartTime) / 1000;
+      const stopwatch = parseInt((microNow() - counterStartTime) * 10000) / 10000;
       socket?.emitSession(sessionId, TOPICS.STOP_COUNTER, stopwatch);
       setStoppedAt(stopwatch);
       setStatus(STATUS.WAITING_FOR_RESULT);
@@ -107,7 +107,7 @@ const DashBoard = ({ sessionId }) => {
       const onCounterStart = () => {
         console.log("counter started");
         setStatus(STATUS.STARTED);
-        setCounterStartTime(Date.now());
+        setCounterStartTime(microNow());
       };
       const onCounterEnded = (data) => {
         console.log("counter ended", data);
@@ -135,19 +135,20 @@ const DashBoard = ({ sessionId }) => {
       };
       const onInitialize = () => {
         console.log("initialize");
+        toast.success("게임이 초기화되었습니다.");
         setStatus(STATUS.WAITING);
         setStoppedAt(null);
         setRating(null);
       };
 
-      socket.on(TOPICS.START_COUNTER, onCounterStart);
-      socket.on(TOPICS.COUNTER_ENDED, onCounterEnded);
-      socket.on(TOPICS.INITIALIZE, onInitialize);
+      socket.on(SessionTopics.ROUND_START, onCounterStart);
+      socket.on(SessionTopics.ROUND_ENDED, onCounterEnded);
+      socket.on(SessionTopics.ROUND_INITIALIZE, onInitialize);
 
       return () => {
-        socket.off(TOPICS.START_COUNTER, onCounterStart);
-        socket.off(TOPICS.COUNTER_ENDED, onCounterEnded);
-        socket.off(TOPICS.INITIALIZE, onInitialize);
+        socket.off(SessionTopics.ROUND_START, onCounterStart);
+        socket.off(SessionTopics.ROUND_ENDED, onCounterEnded);
+        socket.off(SessionTopics.ROUND_INITIALIZE, onInitialize);
       };
     }
   }, [socket?.connected, sessionId]);
@@ -161,7 +162,7 @@ const DashBoard = ({ sessionId }) => {
             current={
               {
                 [STATUS.WAITING]: 0,
-                [STATUS.STARTED]: (Date.now() - counterStartTime) / 1000,
+                [STATUS.STARTED]: microNow() - counterStartTime,
                 [STATUS.WAITING_FOR_RESULT]: stoppedAt,
                 [STATUS.ENDED]: stoppedAt,
               }[status] ?? 0
@@ -172,8 +173,8 @@ const DashBoard = ({ sessionId }) => {
             {
               {
                 [STATUS.WAITING]: `기다리세요...`,
-                [STATUS.STARTED]: `${((Date.now() - counterStartTime) / 1000).toFixed(3)}초`,
-                [STATUS.WAITING_FOR_RESULT]: `${stoppedAt?.toFixed(3)}초`,
+                [STATUS.STARTED]: `${counterTime.toFixed(4)}초`,
+                [STATUS.WAITING_FOR_RESULT]: `${stoppedAt?.toFixed(4)}초`,
                 [STATUS.ENDED]: `${rating != null ? `${rating}위` : "버스트"}`,
               }[status]
             }
@@ -185,18 +186,6 @@ const DashBoard = ({ sessionId }) => {
           </button>
         </div>
       </div>
-      <button
-        onClick={(e) => {
-          openModal(MODAL_TYPES.TEN_SECONDS.RESULT, {
-            state: {
-              rand: Math.random(),
-              time: Date.now(),
-            },
-          });
-        }}
-      >
-        test
-      </button>
       <div className="game-rule">
         <div className="title">게임 규칙</div>
         <div className="description">10초에 가장 근접하여 STOP한 사람이 승리합니다!</div>
@@ -235,7 +224,7 @@ const Settings = ({ sessionId, goToDashboard }) => {
 
   const startCount = async () => {
     try {
-      socket?.emitSession(sessionId, TOPICS.START_COUNTER);
+      socket?.emitSession(sessionId, SessionTopics.ROUND_START);
       goToDashboard();
     } catch (err) {
       console.error(err);
@@ -245,7 +234,7 @@ const Settings = ({ sessionId, goToDashboard }) => {
 
   const initializeSession = async () => {
     try {
-      socket?.emitSession(sessionId, TOPICS.INITIALIZE);
+      socket?.emitSession(sessionId, SessionTopics.ROUND_INITIALIZE);
       // goToDashboard();
       toast.success("게임이 초기화되었습니다.");
     } catch (err) {
