@@ -135,7 +135,7 @@ const DashBoard = ({ sessionId }) => {
       };
       const onInitialize = () => {
         console.log("initialize");
-        toast.success("게임이 초기화되었습니다.");
+        toast.success("라운드가 초기화되었습니다.");
         setStatus(STATUS.WAITING);
         setStoppedAt(null);
         setRating(null);
@@ -236,7 +236,7 @@ const Settings = ({ sessionId, goToDashboard }) => {
     try {
       socket?.emitSession(sessionId, SessionTopics.ROUND_INITIALIZE);
       // goToDashboard();
-      toast.success("게임이 초기화되었습니다.");
+      toast.success("라운드가 초기화되었습니다.");
     } catch (err) {
       console.error(err);
       toast.error("오류가 발생했습니다.");

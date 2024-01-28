@@ -50,13 +50,13 @@ const GameSession = () => {
   const createGame = async () => {
     try {
       console.log("create game");
-      const res = await createGameSessionReq(null, null);
-      const { id, status, code, game } = res;
+      const res = await createGameSessionReq(game?.gid, null);
+      const { id, status, code, game: newGame } = res;
       console.log("create game", res);
       navigate(`/game-session/${id}`);
     } catch (err) {
       console.error(err);
-      toast.error("오류가 발생했습니다.");
+      toast.error(err?.response?.data?.message ?? "오류가 발생했습니다.");
       setCreating(false);
     }
   };
@@ -67,7 +67,7 @@ const GameSession = () => {
       navigate(`/`);
     } catch (err) {
       console.error(err);
-      toast.error("오류가 발생했습니다.");
+      toast.error(err?.response?.data?.message ?? "오류가 발생했습니다.");
     }
   };
 
@@ -77,7 +77,7 @@ const GameSession = () => {
       navigate(`/`);
     } catch (err) {
       console.error(err);
-      toast.error("오류가 발생했습니다.");
+      toast.error(err?.response?.data?.message ?? "오류가 발생했습니다.");
     }
   };
 
@@ -94,7 +94,7 @@ const GameSession = () => {
       setGame(res);
     } catch (err) {
       console.error(err);
-      toast.error("오류가 발생했습니다.");
+      toast.error(err?.response?.data?.message ?? "오류가 발생했습니다.");
     }
   };
 
@@ -106,7 +106,7 @@ const GameSession = () => {
       setGame(res.game);
     } catch (err) {
       console.error(err);
-      toast.error("오류가 발생했습니다.");
+      toast.error(err?.response?.data?.message ?? "오류가 발생했습니다.");
     }
   };
 
@@ -116,7 +116,7 @@ const GameSession = () => {
       navigate(`/game/${game?.gid}/${session?.id}`);
     } catch (err) {
       console.error(err);
-      toast.error("오류가 발생했습니다.");
+      toast.error(err?.response?.data?.message ?? "오류가 발생했습니다.");
     }
   };
 

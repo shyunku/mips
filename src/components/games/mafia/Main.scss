@@ -1,0 +1,131 @@
+.panel.dashboard {
+  .stage {
+    width: 100%;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    white-space: nowrap;
+    color: rgb(222, 172, 255);
+  }
+
+  .job {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    font-size: 13px;
+    color: rgb(148, 125, 162);
+
+    .highlight {
+      margin-left: 5px;
+      font-weight: bold;
+      color: rgb(174, 101, 222);
+
+      &.mafia {
+        color: rgb(255, 114, 114);
+      }
+
+      &.doctor {
+        color: rgb(78, 216, 87);
+      }
+
+      &.police {
+        color: rgb(77, 145, 255);
+      }
+
+      &.citizen {
+        color: rgb(200, 200, 200);
+      }
+    }
+  }
+
+  .killed {
+    width: 100%;
+    padding: 10px 0;
+    color: rgb(92, 38, 38);
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .vote.card {
+    .participants,
+    .execution-agree-options {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      align-items: center;
+      margin: 15px 0;
+
+      .vote-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 0;
+        background-color: rgb(34, 34, 34);
+        width: 100%;
+        justify-content: center;
+        border-radius: 8px;
+        border: 1px solid transparent;
+
+        &:not(:last-child) {
+          margin-bottom: 8px;
+        }
+
+        &.selected {
+          border: 1px solid rgb(255, 141, 141);
+          background-color: rgb(158, 40, 40);
+        }
+
+        &.prev-selected {
+          border: 1px solid rgb(179, 98, 98);
+          background-color: rgb(109, 28, 28);
+        }
+
+        .votes {
+          margin-left: 5px;
+        }
+      }
+    }
+
+    .vote-button {
+      width: 100%;
+      text-align: center;
+      padding: 8px 0;
+      background-color: rgb(99, 66, 130);
+      border-radius: 8px;
+
+      &.inactive {
+        background-color: rgb(88, 67, 107);
+        pointer-events: none;
+        opacity: 0.5;
+      }
+    }
+  }
+}
+
+.panel.memo {
+  textarea {
+    width: 100%;
+    padding: 15px;
+    border-radius: 15px;
+    box-sizing: border-box;
+    background-color: rgb(24, 19, 33);
+    border: 1px solid rgb(189, 134, 255);
+    flex: 1;
+    resize: none;
+  }
+}
+
+.panel.settings {
+  .menus {
+    .menu {
+      &.inactive {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+    }
+  }
+}

@@ -16,7 +16,7 @@ socketStore.getState().initialize();
 console.log("User: ", userStore.getState().nickname);
 root.render(
   <>
-    <Toaster position="top-center" reverseOrder={false} />
+    <Toaster position="top-center" reverseOrder={false} toastOptions={{ duration: 2000 }} />
     <ModalRouter />
     <MainRouter />
   </>

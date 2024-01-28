@@ -50,6 +50,7 @@ const InitialNickname = () => {
             setNicknameInput(e.target.value);
           }}
         />
+        <div className="announcement">회원님의 계정은 생성 24시간 후 삭제됩니다.</div>
       </div>
       <div className="main-btn-container">
         <button className="main-btn highlight" onClick={goToHomePageWithoutLogin}>

@@ -25,6 +25,9 @@ const RateDoughnut = ({ current = 0.3, max = 1, enableTransition }) => {
         legend: {
           display: false,
         },
+        tooltip: {
+          enabled: false,
+        },
       },
       elements: {
         arc: {

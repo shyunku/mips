@@ -33,8 +33,10 @@
       display: flex;
       flex-direction: column;
       flex: 1;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
       padding: 20px;
+      margin-top: 20px;
       box-sizing: border-box;
     }
   }
@@ -43,6 +45,35 @@
     display: flex;
     flex-direction: column;
     flex: 1;
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      $color: rgb(182, 131, 244);
+      border: 1px solid $color;
+      border-radius: 15px;
+      margin-top: 20px;
+      font-size: 13px;
+      padding: 15px;
+      box-sizing: border-box;
+
+      .title {
+        width: 100%;
+        text-align: center;
+        color: rgb(206, 166, 255);
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .description {
+        width: 100%;
+        text-align: center;
+        color: rgb(146, 128, 168);
+        // margin-bottom: 15px;
+        font-size: 10px;
+      }
+    }
 
     .game-rule {
       $color: rgb(127, 119, 137);

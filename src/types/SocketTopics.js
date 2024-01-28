@@ -11,6 +11,7 @@ export const SessionTopics = {
   ROUND_INITIALIZE: "round/initialize",
   ROUND_START: "round/start",
   ROUND_ENDED: "round/ended",
+  ROUND_STATUS: "round/status",
 };
 
 export default SocketTopics;

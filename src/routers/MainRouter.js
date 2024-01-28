@@ -12,6 +12,7 @@ import GameSession from "pages/GameSession";
 import GameLayout from "layouts/GameLayout";
 import GameTenSeconds from "components/games/ten-seconds/Main";
 import InitialNickname from "pages/InitialNickname";
+import Mafia from "components/games/mafia/Main";
 
 const MainRouter = () => {
   return (
@@ -32,6 +33,7 @@ const MainRouter = () => {
           </Route>
           <Route element={<GameLayout />}>
             <Route path="/game/1/:sessionId" element={<GameTenSeconds />} />
+            <Route path="/game/2/:sessionId" element={<Mafia />} />
           </Route>
         </Route>
         {/* TODO :: add 404 page */}
