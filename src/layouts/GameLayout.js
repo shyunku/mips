@@ -6,7 +6,7 @@ import GoBackButton from "molecules/GoBackButton";
 import "./GameLayout.scss";
 import userStore from "stores/userStore";
 import GameSession from "pages/GameSession";
-import { GameSessionCard } from "components/GameCard";
+import { GameSessionCard, InGameCard } from "components/GameCard";
 import GameFooter from "components/GameFooter";
 import socketStore from "stores/socketStore";
 import SocketTopics from "types/SocketTopics";
@@ -15,6 +15,7 @@ const GameLayout = () => {
   const navigate = useNavigate();
   const params = useParams();
   const uid = userStore((state) => state.uid);
+  const nickname = userStore((state) => state.nickname);
   const sessionId = useMemo(() => params.sessionId, [params]);
   const [session, setSession] = useState(null); // {id, code, creator, status, game, ...}
   const creatorUid = useMemo(() => session?.creator?.uid, [session?.creator?.uid]);
@@ -62,8 +63,11 @@ const GameLayout = () => {
     <div className="game-layout-wrapper">
       <div className="game-layout">
         <div className="game-header">
-          <GoBackButton handler={(e) => navigate("/")} />
-          <GameSessionCard data={session} />
+          <div className="top-line">
+            <GoBackButton handler={(e) => navigate("/")} />
+            <div className="nickname">{nickname ?? "???"}</div>
+          </div>
+          <InGameCard data={session} />
         </div>
         <div className="game-content">
           <Outlet

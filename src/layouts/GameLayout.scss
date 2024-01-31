@@ -17,6 +17,19 @@
     display: flex;
     flex-direction: column;
     padding: 20px 20px 0;
+
+    .top-line {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+
+      .nickname {
+        white-space: nowrap;
+        font-size: 12px;
+        color: rgb(187, 146, 230);
+        font-weight: bold;
+      }
+    }
   }
 
   .game-content {
@@ -36,7 +49,7 @@
       overflow-y: auto;
       overflow-x: hidden;
       padding: 20px;
-      margin-top: 20px;
+      margin-top: 10px;
       box-sizing: border-box;
     }
   }

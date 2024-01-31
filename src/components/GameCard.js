@@ -7,6 +7,7 @@ import { formatTime, formatTimeShort } from "util/TimeUtil";
 import { useEffect, useMemo, useState } from "react";
 import { fastInterval, printf } from "util/Common";
 import { toggleFavoriteReq } from "Requests/Favorite.req";
+import useRepaint from "hooks/useRepaint";
 
 const GameCard = ({ game }) => {
   const navigate = useNavigate();
@@ -129,6 +130,19 @@ export const GameSessionCard = ({ data, interactive = true }) => {
           </div>
           <div className="code">{data?.code}</div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+export const InGameCard = ({ data }) => {
+  useRepaint();
+
+  return (
+    <div className={"game-card ingame"}>
+      <div className="game-info">
+        <div className="game-name">{data?.game?.name}</div>
+        <div className="game-time">({formatTimeShort(data?.startedAt)})</div>
       </div>
     </div>
   );

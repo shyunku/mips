@@ -22,6 +22,29 @@
     pointer-events: none;
   }
 
+  &.ingame {
+    .game-image {
+      width: 30px !important;
+      height: 30px !important;
+    }
+
+    .game-info {
+      align-items: center;
+      flex-direction: row !important;
+      padding: 3px 0;
+
+      .game-name {
+        font-size: 14px;
+      }
+
+      .game-time {
+        font-size: 12px;
+        margin-left: 5px;
+        margin-top: 2px;
+      }
+    }
+  }
+
   .placeholder {
     display: flex;
     align-items: center;

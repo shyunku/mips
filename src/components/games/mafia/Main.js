@@ -52,6 +52,7 @@ export const TOPICS = {
   DOCTOR_HEAL_DECIDE: `${GAME_NAME}/doctor-heal-decide`, // -> 모든 유저
   NIGHT_RESULT_ANNOUNCEABLE: `${GAME_NAME}/night-result-announceable`, // -> 방장
   NIGHT_RESULT: `${GAME_NAME}/night-result`, // -> 모든 유저
+  GAME_RESULT: `${GAME_NAME}/game-result`, // -> 모든 유저
   MURDERED: `${GAME_NAME}/murdered`, // -> 모든 유저
   REVIVED: `${GAME_NAME}/revived`, // -> 모든 유저
   MAFIA_WIN: `${GAME_NAME}/mafia-win`,
@@ -155,6 +156,7 @@ const Mafia = forwardRef((props, _) => {
   const [executeTargetUid, setExecuteTargetUid] = useState(null);
   const [dayCount, setDayCount] = useState(0);
   const [mafiaWin, setMafiaWin] = useState(null);
+  const [gameResult, setGameResult] = useState([]);
 
   const aliveCount = useMemo(() => {
     return Object.keys(participantMap).filter((e) => participantMap[e]?.alive).length;
@@ -254,6 +256,7 @@ const Mafia = forwardRef((props, _) => {
           aliveMafiaCount,
           dayCount,
           mafiaWin,
+          gameResult,
         } = data; // participants: []{uid, nickname, vote, alive, agreeExecution}
         setStage(stage);
         setParticipantMap(participants.reduce((acc, e) => ({ ...acc, [e.uid]: e }), {}));
@@ -265,12 +268,28 @@ const Mafia = forwardRef((props, _) => {
         setAliveMafiasCount(aliveMafiaCount);
         setDayCount(dayCount);
         setMafiaWin(mafiaWin);
+        setGameResult(gameResult.jobs);
       };
       const onInitialize = () => {
-        console.log("initialize");
+        printf("onInitialize");
         toast.success("라운드가 초기화되었습니다.");
         setStage(Stage.NEED_JOB_SETTING);
-        setParticipantMap({});
+        setParticipantMap((m) => {
+          return Object.keys(m).reduce((acc, e) => {
+            return {
+              ...acc,
+              [e]: {
+                ...m[e],
+                job: null,
+                memo: null,
+                vote: null,
+                alive: true,
+                victimForMafia: null,
+                agreeExecution: null,
+              },
+            };
+          }, {});
+        });
         setVoteCount(0);
         setVoteResult([]);
         setExecuteTargetUid(null);
@@ -279,6 +298,7 @@ const Mafia = forwardRef((props, _) => {
         setAliveMafiasCount(0);
         setDayCount(0);
         setMafiaWin(null);
+        setGameResult([]);
       };
 
       const onNeedJobSetting = (data) => {
@@ -336,25 +356,29 @@ const Mafia = forwardRef((props, _) => {
       };
       const onRevoteWaiting = (data) => {
         printf("onRevoteWaiting", data);
-        toast.success("결과가 모호하여 재투표가 필요합니다.", { duration: 3000 });
+        toast.success("결과가 모호합니다. 방장은 재투표를 하거나 그냥 진행할 수 있습니다.", { duration: 5000 });
         setStage(Stage.WAITING_FOR_REVOTE);
       };
       const onVoteComplete = (data) => {
         printf("onVoteComplete", data); // []{uid, nickname, voteCount}
-        toast.success("투표가 완료되었습니다.");
+        // toast.success("투표가 완료되었습니다.");
         setVoteResult(data);
       };
       const onVoteResultDecide = (data) => {
         printf("onVoteResultDecide", data); // {targetUid, targetNickname}
-        const { targetUid, targetNickname } = data;
-        toast.success(`${targetNickname}님을 처형할지 결정하세요.`, { duration: 3000 });
+        const { voteCount, targetUid, targetNickname } = data;
+        toast.success(`${targetNickname}님이 ${voteCount}표로 선택되었습니다.`, { duration: 5000 });
         setStage(Stage.EXECUTION_CONFIGM);
         setExecuteTargetUid(targetUid);
       };
       const onExecuted = (data) => {
         printf("onExecuted", data); // {targetUid, targetNickname}
-        toast.success(`${data.targetNickname}님이 처형되었습니다.`);
         const { targetUid, targetNickname } = data;
+        if (targetUid == uid) {
+          toast.success("당신은 처형당했습니다.", { duration: 5000 });
+        } else {
+          toast.success(`${targetNickname}님이 처형되었습니다.`);
+        }
         setParticipantMap((m) => {
           return {
             ...m,
@@ -368,12 +392,12 @@ const Mafia = forwardRef((props, _) => {
       };
       const onNoOneExecuted = (data) => {
         printf("onNoOneExecuted", data);
-        toast.success("아무도 처형되지 않았습니다.");
+        toast.success("아무도 처형되지 않았습니다.", { duration: 5000 });
       };
       const onStartDay = (data) => {
         printf("onStartDay", data);
         setStage(Stage.PROCESS_DAY);
-        toast.success("낮이 되었습니다.");
+        toast.success("낮이 되었습니다.", { duration: 3000 });
         setDayCount((c) => c + 1);
         setVoteCount(0);
         setVoteConfirmCount(0);
@@ -397,7 +421,7 @@ const Mafia = forwardRef((props, _) => {
       const onStartNight = (data) => {
         printf("onStartNight", data);
         setStage(Stage.PROCESS_NIGHT);
-        toast.success("밤이 되었습니다.");
+        toast.success("밤이 되었습니다.", { duration: 3000 });
       };
       const onMafiaKillStart = (data) => {
         printf("onMafiaKillStart", data);
@@ -473,17 +497,35 @@ const Mafia = forwardRef((props, _) => {
       };
       const onNightResultAnnounceable = (data) => {
         printf("onNightResultAnnounceable", data);
-        toast.success("밤 결과를 발표할 수 있습니다.", { duration: 5000 });
+        toast.success("방장은 밤 결과를 발표할 수 있습니다.", { duration: 5000 });
         setStage(Stage.NIGHT_RESULT_ANNOUNCEMENT);
       };
       const onNightResult = (data) => {
         printf("onNightResult", data);
-        toast.success("밤 결과를 발표합니다.");
+        // toast.success("밤 결과를 발표합니다.");
+      };
+      const onGameResult = (data) => {
+        printf("onGameResult", data);
+        const { jobs } = data; // []{uid, nickname, job, alive}
+        setGameResult(jobs);
       };
       const onMurdered = (data) => {
         printf("onMurdered", data);
-        const { targetUid, targetNickname } = data;
-        toast.success(`${targetNickname}가 죽었고, 의사는 살리지 못했습니다.`, { duration: 5000 });
+        const { targetUid, targetNickname, doctorExists } = data;
+        if (targetUid == uid) {
+          if (doctorExists) {
+            toast.success(`당신이 죽었고, 의사는 살리지 못했습니다.`, { duration: 5000 });
+          } else {
+            toast.success(`당신은 마피아에 의해 죽었습니다.`, { duration: 5000 });
+          }
+        } else {
+          if (doctorExists) {
+            toast.success(`${targetNickname}가 죽었고, 의사는 살리지 못했습니다.`, { duration: 5000 });
+          } else {
+            toast.success(`${targetNickname}가 마피아에 의해 죽었습니다.`, { duration: 5000 });
+          }
+        }
+
         setParticipantMap((m) => {
           return {
             ...m,
@@ -504,12 +546,14 @@ const Mafia = forwardRef((props, _) => {
         toast.success("마피아가 승리했습니다.", {
           duration: 5000,
         });
+        setMafiaWin(true);
       };
       const onCitizenWin = (data) => {
         printf("onCitizenWin", data);
         toast.success("시민이 승리했습니다.", {
           duration: 5000,
         });
+        setMafiaWin(false);
       };
       const onMemo = (data) => {
         printf("onMemo", data);
@@ -559,6 +603,7 @@ const Mafia = forwardRef((props, _) => {
       socket.on(TOPICS.DOCTOR_HEAL_DECIDE, onDoctorHealDecide);
       socket.on(TOPICS.NIGHT_RESULT_ANNOUNCEABLE, onNightResultAnnounceable);
       socket.on(TOPICS.NIGHT_RESULT, onNightResult);
+      socket.on(TOPICS.GAME_RESULT, onGameResult);
       socket.on(TOPICS.MURDERED, onMurdered);
       socket.on(TOPICS.REVIVED, onRevived);
       socket.on(TOPICS.MAFIA_WIN, onMafiaWin);
@@ -598,6 +643,7 @@ const Mafia = forwardRef((props, _) => {
         socket.off(TOPICS.DOCTOR_HEAL_DECIDE, onDoctorHealDecide);
         socket.off(TOPICS.NIGHT_RESULT_ANNOUNCEABLE, onNightResultAnnounceable);
         socket.off(TOPICS.NIGHT_RESULT, onNightResult);
+        socket.off(TOPICS.GAME_RESULT, onGameResult);
         socket.off(TOPICS.MURDERED, onMurdered);
         socket.off(TOPICS.REVIVED, onRevived);
         socket.off(TOPICS.MAFIA_WIN, onMafiaWin);
@@ -642,6 +688,8 @@ const Mafia = forwardRef((props, _) => {
                 dayCount={dayCount}
                 sendPoliceInvestigate={sendPoliceInvestigate}
                 sendDoctorHeal={sendDoctorHeal}
+                gameResult={gameResult}
+                mafiaWin={mafiaWin}
               />
             ),
             participants: <Participants participants={session?.participants} creatorUid={creatorUid} />,
@@ -677,6 +725,8 @@ const DashBoard = ({
   dayCount,
   sendPoliceInvestigate,
   sendDoctorHeal,
+  gameResult,
+  mafiaWin,
 }) => {
   const uid = userStore((state) => state.uid);
   const [selectedUid, setSelectedUid] = useState(null);
@@ -705,11 +755,11 @@ const DashBoard = ({
     <div className="panel dashboard">
       <div className="current-status">
         <div className="stage">
-          {StageNames[stage] != null ? `${StageNames[stage]} (${dayCount}일차)` : stage ?? "???"}
+          {StageNames[stage] != null ? `${StageNames[stage]} (${dayCount + 1}일차)` : stage ?? "???"}
         </div>
         {myJob != null && (
           <div className="job">
-            당신은 <div className={"highlight" + JsxUtil.class(myJob)}>{JobNames[myJob] ?? "미정"}</div>입니다.
+            당신은 <div className={"job-highlight" + JsxUtil.class(myJob)}>{JobNames[myJob] ?? "미정"}</div>입니다.
           </div>
         )}
       </div>
@@ -794,7 +844,10 @@ const DashBoard = ({
                     "vote-button" +
                     JsxUtil.classByCondition(agreeExecute == null || myExecutionAgree != null, "inactive")
                   }
-                  onClick={(e) => sendVoteConfirm(agreeExecute)}
+                  onClick={(e) => {
+                    sendVoteConfirm(agreeExecute);
+                    setAgreeExecute(null);
+                  }}
                 >{`결정하기 (${voteConfirmCount ?? 0}/${aliveCount != null ? aliveCount - 1 : "?"})`}</div>
               </div>
             ),
@@ -804,7 +857,7 @@ const DashBoard = ({
               <div className="description">이번 턴에 죽일 사람을 고르세요.</div>
               <div className="participants">
                 {Object.keys(participantMap)
-                  .filter((e) => participantMap[e]?.alive && e != uid)
+                  .filter((e) => participantMap[e]?.alive && participantMap[e]?.job !== Jobs.MAFIA && e != uid)
                   .map((e, ind) => {
                     return (
                       <div
@@ -832,7 +885,7 @@ const DashBoard = ({
                   sendMafiaKillVote(parseInt(selectedUid));
                   setSelectedUid(null);
                 }}
-              >{`투표하기 (${mafiaKillVoteCount ?? 0}/${aliveMafiaCount ?? "?"})`}</div>
+              >{`선택하기 (${mafiaKillVoteCount ?? 0}/${aliveMafiaCount ?? "?"})`}</div>
             </div>
           ) : (
             <div className="vote card">
@@ -919,7 +972,22 @@ const DashBoard = ({
       ) : (
         <div className="killed">당신은 죽었습니다.</div>
       )}
-
+      {stage === Stage.END && (
+        <div className="result card">
+          <div className="title">{mafiaWin ? "마피아 승리" : "시민 승리"}</div>
+          <div className="jobs">
+            {(gameResult ?? []).map((e, ind) => {
+              const job = JobNames[e.job];
+              return (
+                <div className={"job-item" + JsxUtil.classByCondition(e.alive, "alive")} key={ind}>
+                  <div className="nickname">{e.nickname}</div>
+                  <div className={"job-highlight" + JsxUtil.class(e.job)}>{job ?? "???"}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
       <div className="game-rule">
         <div className="title">게임 규칙</div>
         <div className="description">시민은 마피아를 모두 죽이면 승리합니다.</div>
@@ -995,8 +1063,6 @@ const Settings = ({ sessionId, stage, goToDashboard }) => {
   const initializeSession = async () => {
     try {
       socket?.emitSession(sessionId, SessionTopics.ROUND_INITIALIZE);
-      // goToDashboard();
-      toast.success("라운드가 초기화되었습니다.");
     } catch (err) {
       console.error(err);
       toast.error("오류가 발생했습니다.");

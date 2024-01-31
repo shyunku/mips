@@ -48,7 +48,7 @@ const Home = () => {
     waiting.sort(dateDescSorter);
     playing.sort(dateDescSorter);
     ended.sort(dateDescSorter);
-    return [waiting, playing, ended];
+    return [waiting, playing, ended.slice(0, 5)];
   }, [sessions]);
 
   const sessionCodeInputHandler = async (e) => {

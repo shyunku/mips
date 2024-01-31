@@ -8,37 +8,40 @@
     color: rgb(222, 172, 255);
   }
 
-  .job {
+  .current-status .job {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     text-align: center;
-    margin-top: 10px;
+    margin-top: 12px;
     margin-bottom: 15px;
-    font-size: 13px;
+    font-size: 14px;
     color: rgb(148, 125, 162);
 
-    .highlight {
+    .job-highlight {
       margin-left: 5px;
-      font-weight: bold;
-      color: rgb(174, 101, 222);
+    }
+  }
 
-      &.mafia {
-        color: rgb(255, 114, 114);
-      }
+  .job-highlight {
+    font-weight: bold;
+    color: rgb(174, 101, 222);
 
-      &.doctor {
-        color: rgb(78, 216, 87);
-      }
+    &.mafia {
+      color: rgb(255, 114, 114);
+    }
 
-      &.police {
-        color: rgb(77, 145, 255);
-      }
+    &.doctor {
+      color: rgb(78, 216, 87);
+    }
 
-      &.citizen {
-        color: rgb(200, 200, 200);
-      }
+    &.police {
+      color: rgb(77, 145, 255);
+    }
+
+    &.citizen {
+      color: rgb(200, 200, 200);
     }
   }
 
@@ -51,16 +54,19 @@
     font-weight: bold;
   }
 
-  .vote.card {
+  .vote.card,
+  .result.card {
     .participants,
-    .execution-agree-options {
+    .execution-agree-options,
+    .jobs {
       display: flex;
       flex-direction: column;
       width: 100%;
       align-items: center;
       margin: 15px 0;
 
-      .vote-item {
+      .vote-item,
+      .job-item {
         display: flex;
         align-items: center;
         padding: 8px 0;
@@ -80,12 +86,25 @@
         }
 
         &.prev-selected {
-          border: 1px solid rgb(179, 98, 98);
-          background-color: rgb(109, 28, 28);
+          border: 1px solid rgb(125, 68, 68);
+          background-color: rgb(65, 22, 22);
         }
 
         .votes {
           margin-left: 5px;
+        }
+      }
+
+      .job-item {
+        justify-content: space-between;
+        padding: 8px 14px;
+        box-sizing: border-box;
+        color: rgb(162, 147, 174);
+        background-color: rgb(51, 51, 51);
+
+        &:not(.alive) {
+          background-color: rgb(60, 27, 27);
+          opacity: 0.5;
         }
       }
     }
