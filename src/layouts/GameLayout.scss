@@ -116,6 +116,37 @@
       }
     }
 
+    &.game-rule {
+      .rule-box {
+        $color: rgb(159, 145, 176);
+        margin-top: 20px;
+        font-size: 13px;
+        color: $color;
+        border: 1px solid $color;
+        padding: 15px;
+        border-radius: 15px;
+
+        .title {
+          font-size: 15px;
+          margin-bottom: 10px;
+          font-weight: bold;
+        }
+
+        .description {
+          line-height: 16px;
+          &::before {
+            content: "•";
+            margin-right: 5px;
+          }
+          font-size: 12px;
+
+          &:not(:last-child) {
+            margin-bottom: 5px;
+          }
+        }
+      }
+    }
+
     &.participants {
       display: flex;
       flex-direction: column;

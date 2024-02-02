@@ -1,0 +1,217 @@
+.panel.dashboard {
+  align-items: center;
+  font-family: "Titillium Web", "Noto Sans KR", sans-serif;
+
+  .state {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  .board {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    .other-player-boards {
+      display: flex;
+      flex-direction: column;
+      margin-top: 15px;
+
+      .row {
+        display: flex;
+        justify-content: space-between;
+
+        &:not(:last-child) {
+          margin-bottom: 10px;
+        }
+
+        .area {
+          flex: 1;
+        }
+
+        .area:not(:last-child) {
+          margin-right: 10px;
+        }
+      }
+    }
+
+    .area {
+      display: flex;
+      flex-direction: column;
+      background-color: rgb(43, 43, 43);
+      color: rgb(242, 230, 255);
+      border-radius: 8px;
+      padding: 8px 12px;
+      box-sizing: border-box;
+      //   width: 150px;
+      align-items: center;
+
+      .nickname {
+        font-size: 12px;
+      }
+
+      .gold {
+        margin-top: 5px;
+        font-size: 10px;
+      }
+
+      .pot {
+        margin-top: 10px;
+        font-size: 18px;
+        color: rgb(220, 212, 162);
+      }
+    }
+
+    .stake-pot {
+      $border-color: rgb(194, 158, 235);
+      border: 1px solid $border-color;
+      //   background-color: rgb(138, 115, 164);
+      border-radius: 8px;
+      width: 100%;
+      color: rgb(198, 185, 211);
+
+      .row {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        box-sizing: border-box;
+
+        &:not(:last-child) {
+          border-bottom: 1px solid $border-color;
+        }
+
+        .label {
+          font-size: 15px;
+        }
+
+        .gold {
+          font-size: 24px;
+          //   font-weight: bold;
+          flex: 1;
+          text-align: right;
+        }
+      }
+    }
+
+    .my-board {
+      width: 100%;
+      margin-top: 15px;
+      background-color: rgb(20, 73, 38);
+
+      .gold {
+        margin-top: 5px;
+        font-size: 12px;
+      }
+
+      .pot {
+        margin-top: 10px;
+        font-size: 28px;
+      }
+    }
+  }
+
+  .expansion {
+    flex: 1;
+    min-height: 15px;
+  }
+
+  .board-footer {
+    display: flex;
+    width: 100%;
+    overflow: hidden;
+
+    .controller {
+      display: flex;
+      width: 100%;
+      flex: 1;
+
+      .action-pack {
+        display: flex;
+        flex-direction: column;
+
+        &:not(:last-child) {
+          margin-right: 10px;
+        }
+
+        .action {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 8px 12px;
+          background-color: rgb(38, 38, 38);
+          border-radius: 5px;
+          font-size: 15px;
+          width: 60px;
+
+          &:not(:last-child) {
+            margin-bottom: 10px;
+          }
+        }
+      }
+    }
+
+    .pedigree {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex: 1;
+      margin-left: 15px;
+      border: 1px solid rgb(206, 176, 244);
+      height: 200px;
+      overflow-x: hidden;
+      overflow-y: overlay;
+      position: relative;
+      border-radius: 8px;
+
+      .pedigree-item {
+        display: flex;
+        align-items: center;
+        font-size: 11px;
+        padding: 5px;
+        color: rgb(90, 90, 90);
+
+        &.head {
+          position: sticky;
+          background-color: rgb(36, 28, 45);
+          color: rgb(255, 255, 255);
+
+          & > * {
+            text-align: center;
+          }
+        }
+
+        &:not(:last-child):not(.head) {
+          border-bottom: 1px solid rgb(51, 37, 69);
+        }
+
+        &.highlight {
+          color: rgb(249, 246, 255);
+          background-color: rgb(67, 39, 98);
+
+          .probability {
+            // font-weight: bold;
+          }
+        }
+
+        .level {
+          width: 24px;
+          text-align: center;
+        }
+
+        .description {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          text-align: center;
+          width: 70px;
+        }
+
+        .probability {
+          flex: 1;
+          text-align: center;
+        }
+      }
+    }
+  }
+}
