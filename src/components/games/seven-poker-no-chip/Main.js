@@ -22,8 +22,9 @@ import { printf } from "util/Common";
 import JsxUtil from "util/JsxUtil";
 import "./Main.scss";
 import { toMaxFixed, toRelFixed } from "util/MathUtil";
+import DashBoard from "./DashBoard";
 
-const pedigrees = [
+export const Pedigrees = [
   {
     label: "로티플",
     probability: 0.000032,
@@ -103,7 +104,7 @@ const SevenPokerNoChip = forwardRef((props, _) => {
     onMenuChange
   );
 
-  console.log(pedigrees.reduce((acc, e) => acc + (e.probability ?? 0), 0));
+  console.log(Pedigrees.reduce((acc, e) => acc + (e.probability ?? 0), 0));
 
   const uid = userStore((state) => state.uid);
   const socket = socketStore((state) => state.socket);
@@ -153,94 +154,6 @@ const SevenPokerNoChip = forwardRef((props, _) => {
     </div>
   );
 });
-
-const DashBoard = ({}) => {
-  const uid = userStore((state) => state.uid);
-
-  return (
-    <div className="panel dashboard">
-      <div className="state">플레이어 3 턴</div>
-      <div className="board">
-        <div className="stake-pot">
-          <div className="pot row">
-            <div className="label">POT</div>
-            <div className="gold">1조 9100억 2305만</div>
-          </div>
-          <div className="call row">
-            <div className="label">CALL</div>
-            <div className="gold">3100억 2305만</div>
-          </div>
-        </div>
-        <div className="other-player-boards">
-          <div className="row">
-            <div className="player-board area">
-              <div className="nickname">플레이어 1</div>
-              <div className="gold">2351억 2300만</div>
-              <div className="pot">100억 3515만</div>
-            </div>
-            <div className="player-board area">
-              <div className="nickname">플레이어 2</div>
-              <div className="gold">2351억 2300만</div>
-              <div className="pot">100억 3515만</div>
-            </div>
-          </div>
-          <div className="row">
-            <div className="player-board area">
-              <div className="nickname">플레이어 3</div>
-              <div className="gold">2351억 2300만</div>
-              <div className="pot">100억 3515만</div>
-            </div>
-            <div className="player-board area">
-              <div className="nickname">플레이어 4</div>
-              <div className="gold">2351억 2300만</div>
-              <div className="pot">100억 3515만</div>
-            </div>
-          </div>
-        </div>
-        <div className="my-board area">
-          <div className="nickname">션쿠 (나)</div>
-          <div className="gold">2351억 2300만</div>
-          <div className="pot">105억 2400만</div>
-        </div>
-      </div>
-      <div className="expansion" />
-      <div className="board-footer">
-        <div className="controller">
-          <div className="action-pack">
-            <div className="action">콜</div>
-            <div className="action">삥</div>
-            <div className="action">따당</div>
-            <div className="action">하프</div>
-            <div className="action">다이</div>
-          </div>
-          <div className="action-pack">
-            <div className="action">5%</div>
-            <div className="action">10%</div>
-            <div className="action">25%</div>
-            <div className="action">50%</div>
-            <div className="action">100%</div>
-          </div>
-        </div>
-        <div className="pedigree">
-          <div className="pedigree-item head">
-            <div className="level">티어</div>
-            <div className="description">단계</div>
-            <div className="probability">확률</div>
-          </div>
-          {pedigrees.map((e, ind) => {
-            return (
-              <div className={"pedigree-item" + JsxUtil.classByCondition(ind === -1, "highlight")} key={ind}>
-                <div className="level">{ind + 1}</div>
-                <div className="description">{e.label}</div>
-                <div className="probability">{toRelFixed((e.probability ?? 0) * 100, 3)}%</div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const GameRule = ({}) => {
   return (
@@ -303,7 +216,13 @@ const Settings = ({ sessionId, stage, goToDashboard }) => {
     }
   };
 
-  const menus = [];
+  const menus = [
+    {
+      label: "모두에게 돈 추가하기",
+      activeFilter: [],
+      // onClick: initializeSession,
+    },
+  ];
 
   return (
     <div className="panel settings">
