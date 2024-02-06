@@ -13,7 +13,7 @@ import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import socketStore from "stores/socketStore";
 import useRepaint from "hooks/useRepaint";
 import RateDoughnut from "components/RateDoughnut";
-import { openModal } from "molecules/Modal";
+import { floatModal } from "molecules/Modal";
 import { MODAL_TYPES } from "routers/ModalRouter";
 import { printf } from "util/Common";
 import { microNow } from "util/TimeUtil";
@@ -126,7 +126,7 @@ const DashBoard = ({ sessionId }) => {
         toast.success("카운트가 종료되었습니다.");
 
         setTimeout(() => {
-          openModal(MODAL_TYPES.TEN_SECONDS.RESULT, {
+          floatModal(MODAL_TYPES.TEN_SECONDS.RESULT, {
             state: {
               results,
             },

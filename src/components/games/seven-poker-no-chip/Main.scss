@@ -39,18 +39,65 @@
     .area {
       display: flex;
       flex-direction: column;
-      background-color: rgb(35, 35, 35);
       color: rgb(242, 230, 255);
+      background-color: rgb(35, 35, 35);
       border: 2px solid rgb(72, 72, 72);
       border-radius: 8px;
       box-sizing: border-box;
       //   width: 150px;
       align-items: center;
-      overflow: hidden;
+      // overflow: hidden;
+      position: relative;
 
       &.turn {
         background-color: rgb(77, 21, 132);
         border: 2px solid rgb(186, 117, 255);
+      }
+
+      &.died {
+        background-color: rgb(17, 17, 17);
+        border: 2px solid rgb(36, 36, 36);
+        opacity: 0.5;
+      }
+
+      &.empty {
+        opacity: 0.35;
+      }
+
+      .bet-type {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        top: -5px;
+        right: -5px;
+        width: 30px;
+        height: 30px;
+        background-color: rgb(88, 88, 88);
+        border-radius: 50%;
+        font-size: 12px;
+        filter: grayscale(30%);
+        transform: rotate(10deg);
+
+        &.call {
+          background-color: rgb(167, 125, 47);
+        }
+
+        &.half {
+          background-color: rgb(91, 156, 53);
+        }
+
+        &.bbing {
+          background-color: rgb(62, 177, 226);
+        }
+
+        &.ddadang {
+          background-color: rgb(149, 50, 182);
+        }
+
+        &.die {
+          background-color: rgb(175, 32, 32);
+        }
       }
 
       .nickname {
@@ -75,7 +122,7 @@
         .gold {
           display: flex;
           align-items: center;
-          font-size: 10px;
+          font-size: 11px;
           color: rgb(151, 151, 151);
           font-weight: bold;
           padding: 2px 0;
@@ -165,6 +212,29 @@
       display: flex;
       width: 100%;
       flex: 1;
+      position: relative;
+
+      &.disabled {
+        opacity: 0.3;
+        filter: grayscale(100%);
+      }
+
+      .died {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(5px);
+        z-index: 3;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+      }
 
       .action-pack {
         display: flex;
@@ -185,6 +255,12 @@
           width: 60px;
 
           filter: grayscale(30%);
+
+          &.disabled {
+            opacity: 0.3;
+            filter: grayscale(100%);
+            pointer-events: none;
+          }
 
           &:not(:last-child) {
             margin-bottom: 10px;

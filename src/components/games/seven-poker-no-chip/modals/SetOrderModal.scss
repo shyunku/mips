@@ -1,0 +1,156 @@
+.set-order-modal {
+  & > .content {
+    display: flex;
+    flex-direction: column;
+    margin-top: 15px;
+    flex: 1;
+    width: 240px;
+
+    .participant-turn-order {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+
+      .participant {
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        padding: 5px 10px;
+        box-sizing: border-box;
+        border-radius: 5px;
+        width: 100%;
+        background-color: rgb(32, 32, 32);
+
+        &:not(:last-child) {
+          margin-bottom: 5px;
+        }
+
+        .order {
+          margin-right: 15px;
+          text-align: center;
+          color: rgb(129, 255, 129);
+        }
+
+        .nickname {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          flex: 1;
+          color: rgb(176, 176, 176);
+        }
+
+        .controllers {
+          display: flex;
+          align-items: center;
+          font-size: 10px;
+          margin-left: 10px;
+          color: rgb(214, 214, 214);
+
+          & > * {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 3px;
+            background-color: rgb(68, 68, 68);
+            cursor: pointer;
+
+            &:not(:last-child) {
+              margin-right: 5px;
+            }
+
+            &.disabled {
+              opacity: 0.3;
+              pointer-events: none;
+            }
+          }
+        }
+      }
+    }
+
+    .initial-money,
+    .starting-money {
+      display: flex;
+      flex-direction: column;
+      margin-top: 20px;
+
+      .label {
+        font-size: 12px;
+        font-weight: bold;
+        width: 100%;
+        text-align: center;
+        color: rgb(255, 255, 255);
+      }
+
+      .money-display {
+        display: flex;
+        align-items: center;
+        justify-content: right;
+        padding: 8px 12px;
+        box-sizing: border-box;
+        width: 100%;
+        border: 1px solid rgb(158, 255, 168);
+        margin: 8px 0;
+        border-radius: 8px;
+      }
+
+      .controllers {
+        display: flex;
+        flex-direction: column;
+        margin-top: 10px;
+
+        .row {
+          display: flex;
+
+          &:not(:last-child) {
+            margin-bottom: 3px;
+          }
+
+          .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 8px 0;
+            font-size: 13px;
+            background-color: rgb(40, 40, 40);
+            border-radius: 5px;
+            color: rgb(205, 205, 205);
+
+            &:not(:last-child) {
+              margin-right: 3px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .messages {
+    display: flex;
+    flex-direction: column;
+    font-size: 10px;
+
+    & > * {
+      margin-top: 15px;
+      line-height: 12px;
+    }
+
+    .warning {
+      color: rgb(215, 138, 37);
+    }
+  }
+
+  .confirm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 15px;
+    font-size: 14px;
+    width: 100%;
+    background-color: rgb(62, 140, 62);
+    padding: 7px 0;
+    border-radius: 5px;
+  }
+}

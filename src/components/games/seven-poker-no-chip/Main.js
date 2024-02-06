@@ -1,7 +1,7 @@
 import { endGameSessionReq } from "Requests/Session.req";
 import GameFooter from "components/GameFooter";
 import useMenu from "hooks/useMenu";
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { FaCrown } from "react-icons/fa";
 import {
@@ -21,8 +21,10 @@ import { SessionTopics } from "types/SocketTopics";
 import { printf } from "util/Common";
 import JsxUtil from "util/JsxUtil";
 import "./Main.scss";
-import { toMaxFixed, toRelFixed } from "util/MathUtil";
+import { toCurrency, toMaxFixed, toRelFixed } from "util/MathUtil";
 import DashBoard from "./DashBoard";
+import { floatModal } from "molecules/Modal";
+import { MODAL_TYPES } from "routers/ModalRouter";
 
 export const Pedigrees = [
   {
@@ -75,6 +77,44 @@ export const Pedigrees = [
   },
 ];
 
+const GameName = "seven-poker-nochip";
+
+const Topics = {
+  INITIAL_SETTING: `${GameName}/initial-setting`,
+  START: `${GameName}/start`,
+  BET: `${GameName}/bet`,
+  WIN: `${GameName}/win`,
+  STATE_CHANGE: `${GameName}/state-change`,
+  GIVE_MONEY_TO_ALL: `${GameName}/give-money-to-all`,
+  GIVE_MONEY_TO: `${GameName}/give-money-to`,
+  GAME_END: `${GameName}/game-end`,
+};
+
+export const Stage = {
+  INITIAL: "initial",
+  READY: "ready",
+  BET: "bet",
+};
+
+export const StageNames = {
+  [Stage.INITIAL]: "초기 설정 중...",
+  [Stage.READY]: "게임 시작 전...",
+  [Stage.BET]: "베팅 중...",
+};
+
+export const BetType = {
+  CALL: "call",
+  HALF: "half",
+  BBING: "bbing",
+  DDADANG: "ddadang",
+  DIE: "die",
+};
+
+export const BetProcessType = {
+  NORMAL: "normal",
+  CALL: "call",
+};
+
 const SevenPokerNoChip = forwardRef((props, _) => {
   const { ref, sessionId, session, isCreator, creatorUid, onMenuChange, goToDashboard } = useOutletContext();
   const { key, menus, setMenu } = useMenu(
@@ -104,17 +144,36 @@ const SevenPokerNoChip = forwardRef((props, _) => {
     onMenuChange
   );
 
-  console.log(Pedigrees.reduce((acc, e) => acc + (e.probability ?? 0), 0));
+  useImperativeHandle(ref, () => ({ setMenu }), [setMenu]);
+
+  // printf(
+  //   "prob sum",
+  //   Pedigrees.reduce((acc, e) => acc + (e.probability ?? 0), 0)
+  // );
 
   const uid = userStore((state) => state.uid);
   const socket = socketStore((state) => state.socket);
-  useImperativeHandle(
-    ref,
-    () => ({
-      setMenu,
-    }),
-    [setMenu]
-  );
+  const [stage, setStage] = useState(Stage.INITIAL);
+
+  const [members, setMembers] = useState({});
+  const [turnOrder, setTurnOrder] = useState([]);
+  const [currentTurn, setCurrentTurn] = useState(null);
+  const [currentBetType, setCurrentBetType] = useState(null);
+  const [pot, setPot] = useState("0");
+  const [currentBet, setCurrentBet] = useState("0");
+
+  const myOrderIndex = useMemo(() => {
+    return turnOrder?.findIndex((e) => e === uid) ?? -1;
+  }, [turnOrder, uid]);
+
+  const sendBet = async (betType) => {
+    try {
+      socket?.emitSession(sessionId, Topics.BET, betType);
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.response?.data?.message ?? "오류가 발생했습니다.");
+    }
+  };
 
   useEffect(() => {
     if (socket?.connected) {
@@ -126,9 +185,64 @@ const SevenPokerNoChip = forwardRef((props, _) => {
       };
       const onRoundStatus = (data) => {
         printf("onRoundStatus", data);
+        const { stage, pot, currentBet, currentTurn, currentBetType, turnOrder, members } = data;
+        setStage(stage);
+        setPot(pot);
+        setCurrentTurn(currentTurn);
+        setTurnOrder(turnOrder);
+        setCurrentBet(currentBet);
+        setCurrentBetType(currentBetType);
+        setMembers((members ?? []).reduce((acc, e) => ({ ...acc, [e.uid]: e }), {}));
+      };
+      const onInitialize = () => {
+        printf("onInitialize");
+        toast.success("라운드가 초기화되었습니다.");
+        setStage(Stage.INITIAL);
       };
 
-      return () => {};
+      const onInitialSetting = (data) => {
+        printf("onInitialSetting", data);
+        const { order, members: memberMap, initialGold } = data;
+        setStage(Stage.READY);
+        setTurnOrder(order);
+        setMembers((memberMap ?? []).reduce((acc, e) => ({ ...acc, [e.uid]: e }), {}));
+      };
+      const onStart = (data) => {
+        printf("onStart", data);
+        const { pot, round, currentTurn } = data;
+        setPot(pot);
+        setStage(Stage.BET);
+        setCurrentTurn(currentTurn);
+      };
+      const onStateChange = (data) => {
+        printf("onStateChange", data);
+        socket?.emitSession(sessionId, SessionTopics.ROUND_STATUS);
+      };
+      const onWin = (data) => {
+        printf("onWin", data);
+        const { uid, nickname, earned } = data;
+        toast.success(`${nickname}님이 ${toCurrency(earned)}원을 획득했습니다.`);
+      };
+
+      socket?.on(SessionTopics.ROUND_START, onRoundStart);
+      socket?.on(SessionTopics.ROUND_ENDED, onRoundEnd);
+      socket?.on(SessionTopics.ROUND_STATUS, onRoundStatus);
+      socket?.on(SessionTopics.ROUND_INITIALIZE, onInitialize);
+      socket?.on(Topics.INITIAL_SETTING, onInitialSetting);
+      socket?.on(Topics.START, onStart);
+      socket?.on(Topics.STATE_CHANGE, onStateChange);
+      socket?.on(Topics.WIN, onWin);
+
+      return () => {
+        socket?.off(SessionTopics.ROUND_START, onRoundStart);
+        socket?.off(SessionTopics.ROUND_ENDED, onRoundEnd);
+        socket?.off(SessionTopics.ROUND_STATUS, onRoundStatus);
+        socket?.off(SessionTopics.ROUND_INITIALIZE, onInitialize);
+        socket?.off(Topics.INITIAL_SETTING, onInitialSetting);
+        socket?.off(Topics.START, onStart);
+        socket?.off(Topics.STATE_CHANGE, onStateChange);
+        socket?.off(Topics.WIN, onWin);
+      };
     }
   }, [socket?.connected, sessionId]);
 
@@ -143,10 +257,22 @@ const SevenPokerNoChip = forwardRef((props, _) => {
       <div className="content">
         {
           {
-            dashboard: <DashBoard />,
+            dashboard: (
+              <DashBoard
+                stage={stage}
+                pot={pot}
+                currentBet={currentBet}
+                members={members}
+                myOrderIndex={myOrderIndex}
+                turnOrder={turnOrder}
+                currentTurn={currentTurn}
+                currentBetType={currentBetType}
+                sendBet={sendBet}
+              />
+            ),
             gameRule: <GameRule />,
             participants: <Participants participants={session?.participants} creatorUid={creatorUid} />,
-            settings: <Settings sessionId={sessionId} goToDashboard={goToDashboard} />,
+            settings: <Settings sessionId={sessionId} goToDashboard={goToDashboard} stage={stage} session={session} />,
           }[key]
         }
       </div>
@@ -166,6 +292,9 @@ const GameRule = ({}) => {
         </div>
         <div className="description">
           세븐 포커에서의 기본적인 액션 (콜, 삥, 따당, 하프, 다이 등)을 취하셔야 다음 턴으로 진행됩니다.
+        </div>
+        <div className="description">
+          방장은 포커 게임 중 승리자가 결정된 경우 진행 설정에서 게임을 종료할 수 있습니다.
         </div>
       </div>
     </div>
@@ -195,7 +324,7 @@ const Participants = ({ participants = [], creatorUid }) => {
   );
 };
 
-const Settings = ({ sessionId, stage, goToDashboard }) => {
+const Settings = ({ sessionId, stage, session, goToDashboard }) => {
   const socket = socketStore((state) => state.socket);
 
   const initializeSession = async () => {
@@ -218,7 +347,54 @@ const Settings = ({ sessionId, stage, goToDashboard }) => {
 
   const menus = [
     {
-      label: "모두에게 돈 추가하기",
+      label: "순서 정하기 및 게임 시작",
+      activeFilter: [Stage.INITIAL],
+      onClick: () => {
+        console.log(session?.participants);
+        floatModal(MODAL_TYPES.SEVEN_POKER_NO_CHIP.SET_ORDER, {
+          state: {
+            participants: session?.participants ?? [],
+          },
+          closeHandler: (result) => {
+            try {
+              const { order, startingMoney, initialMoney } = result;
+              socket?.emitSession(sessionId, Topics.INITIAL_SETTING, {
+                order,
+                initialGold: initialMoney,
+                startBetGold: startingMoney,
+              });
+              // console.log(result);
+            } catch (err) {
+              console.error(err);
+              toast.error(err?.response?.data?.message ?? "오류가 발생했습니다.");
+            }
+          },
+        });
+      },
+    },
+    {
+      label: "게임 시작",
+      activeFilter: [Stage.READY],
+      onClick: () => {
+        socket?.emitSession(sessionId, SessionTopics.ROUND_START);
+        goToDashboard();
+      },
+    },
+    {
+      label: "우승자 결정 (팟 금액 지급)",
+      activeFilter: [Stage.READY],
+      onClick: () => {
+        socket?.emitSession(sessionId, Topics.WIN, null);
+        goToDashboard();
+      },
+    },
+    {
+      label: "모두에게 돈 주기",
+      activeFilter: [],
+      // onClick: initializeSession,
+    },
+    {
+      label: "특정 멤버에게 돈 주기",
       activeFilter: [],
       // onClick: initializeSession,
     },

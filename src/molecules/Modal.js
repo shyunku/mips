@@ -5,14 +5,14 @@ import { printf, sendEvent, uuidv4 } from "util/Common";
 
 const Modal = forwardRef(({ children, id, hideDefaultClose = false, onClose, onCancel, className, ...rest }, ref) => {
   const modalRef = useRef(null);
-  const closeHandler = async () => {
+  const closeHandler = async (closeData) => {
     const modalElem = modalRef.current;
     if (!modalElem) return;
     const modalUuid = modalElem.getAttribute("data-uuid");
     if (!modalUuid) return;
     const modalCloseTopic = `modal_close_signal_${modalUuid}`;
     let data = await onClose?.();
-    sendEvent(modalCloseTopic, data);
+    sendEvent(modalCloseTopic, data ?? closeData);
   };
 
   const cancelHandler = async () => {
@@ -41,7 +41,6 @@ const Modal = forwardRef(({ children, id, hideDefaultClose = false, onClose, onC
               <IoClose />
             </div>
           )}
-
           {children}
         </>
       </div>
@@ -55,9 +54,10 @@ export const Modaler = ({ children }) => {
   const [closeListeners, setCloseListeners] = useState({});
   const activeChildren = useMemo(() => {
     return React.Children.map(children, (child) => {
+      // const active = activeModals[child.props?.id] != null ?? false;
       return React.cloneElement(child, { state: modalStates[child.props?.id] ?? null });
     });
-  }, [children, modalStates]);
+  }, [children, modalStates, activeModals]);
 
   useEffect(() => {
     const openListener = (e) => {
@@ -65,17 +65,18 @@ export const Modaler = ({ children }) => {
       const { modalId, uuid, modalCloseTopic, state } = modalData;
       const realModalId = `modal-${modalId}`;
 
-      // check if modal is already opened
-      if (activeModals[modalId]) {
-        console.log(`Modal with id ${modalId} is already opened.`);
-        return;
-      }
-
       const targetModalElement = document.querySelector(`.modal#${realModalId}`);
       if (!targetModalElement) {
         console.error(`Modal with id ${modalId} not found.`);
         return;
       }
+
+      // check if modal is already opened
+      if (activeModals[modalId] && targetModalElement.classList.contains("active")) {
+        console.log(`Modal with id ${modalId} is already opened.`);
+        return;
+      }
+
       targetModalElement.classList.add("active");
       targetModalElement.setAttribute("data-uuid", uuid);
       targetModalElement.setAttribute("data-close-topic", modalCloseTopic);
@@ -138,11 +139,9 @@ export const Modaler = ({ children }) => {
   return <div className={"modal-container"}>{activeChildren}</div>;
 };
 
-export const openModal = (modalId, { state = null, closeHandler = null }) => {
+export const floatModal = (modalId, { state = null, closeHandler = null }) => {
   const modalUuid = uuidv4();
   const modalCloseTopic = `modal_close_${modalUuid}`;
-  const modalStateTopic = `modal_state_${modalUuid}`;
-  const modalStateReadyTopic = `modal_state_ready_${modalUuid}`;
   sendEvent("open_modal", {
     modalId,
     uuid: modalUuid,
