@@ -7,7 +7,7 @@ import JsxUtil from "util/JsxUtil";
 const Units = ["만", "억", "조", "경", "해", "자", "양", "구", "간", "정", "재", "극"];
 
 // money: string
-const GameMoney = ({ money, highlight, unitSize = 2, excludeZero = false }) => {
+const GameMoney = ({ money, highlight, unitSize = 2, excludeZero = false, fontSize = null, postfix = "" }) => {
   const isNegative = useMemo(() => {
     const bn = new BigNumber(money);
     return bn.isLessThan(0);
@@ -42,7 +42,10 @@ const GameMoney = ({ money, highlight, unitSize = 2, excludeZero = false }) => {
   }, [money, unitSize, excludeZero]);
 
   return (
-    <div className={"game-money" + JsxUtil.classByCondition(highlight, "highlight")}>
+    <div
+      className={"game-money" + JsxUtil.classByCondition(highlight, "highlight")}
+      style={fontSize != null ? { fontSize: fontSize } : {}}
+    >
       {isZero ? (
         "0"
       ) : (
@@ -59,6 +62,7 @@ const GameMoney = ({ money, highlight, unitSize = 2, excludeZero = false }) => {
           ))}
         </>
       )}
+      {postfix}
     </div>
   );
 };

@@ -181,16 +181,17 @@ const PlayerBoard = ({ me = false, player, turn = false }) => {
             [BetType.HALF]: "하프",
             [BetType.BBING]: "삥",
             [BetType.DDADANG]: "따당",
+            [BetType.CHECK]: "체크",
             [BetType.DIE]: "다이",
           }[player?.betType] ?? "??"}
         </div>
       )}
       <div className="area-content">
         <div className="gold">
-          <AnimatedGameMoney money={player?.gold ?? "0"} />
+          <AnimatedGameMoney money={player?.gold ?? "0"} fontSize={me ? 16 : null} />
         </div>
         <div className="pot">
-          <AnimatedGameMoney money={player?.bet ?? "0"} highlight={true} />
+          <AnimatedGameMoney money={player?.bet ?? "0"} highlight={true} fontSize={me ? 24 : null} />
         </div>
       </div>
     </div>

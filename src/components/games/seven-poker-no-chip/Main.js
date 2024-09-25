@@ -23,8 +23,9 @@ import JsxUtil from "util/JsxUtil";
 import "./Main.scss";
 import { toCurrency, toMaxFixed, toRelFixed } from "util/MathUtil";
 import DashBoard from "./DashBoard";
-import { floatModal } from "molecules/Modal";
 import { MODAL_TYPES } from "routers/ModalRouter";
+import { openModal } from "molecules/Modal";
+import BigNumber from "bignumber.js";
 
 export const Pedigrees = [
   {
@@ -88,6 +89,7 @@ const Topics = {
   GIVE_MONEY_TO_ALL: `${GameName}/give-money-to-all`,
   GIVE_MONEY_TO: `${GameName}/give-money-to`,
   GAME_END: `${GameName}/game-end`,
+  NEW_BET_NOTIFY: `${GameName}/new-bet-notify`,
 };
 
 export const Stage = {
@@ -107,6 +109,7 @@ export const BetType = {
   HALF: "half",
   BBING: "bbing",
   DDADANG: "ddadang",
+  CHECK: "check",
   DIE: "die",
 };
 
@@ -221,7 +224,81 @@ const SevenPokerNoChip = forwardRef((props, _) => {
       const onWin = (data) => {
         printf("onWin", data);
         const { uid, nickname, earned } = data;
-        toast.success(`${nickname}님이 ${toCurrency(earned)}원을 획득했습니다.`);
+        toast.success(`${nickname}님이 ${toCurrency(earned * 10000, 0)}원을 획득했습니다.`, {
+          duration: 5000,
+        });
+      };
+      const onGiveMoneyTo = (data) => {
+        setMembers((prev) => {
+          const newMembers = { ...prev };
+          for (let key of data.uidList) {
+            if (!newMembers[key]) continue;
+            newMembers[key] = {
+              ...newMembers[key],
+              gold: BigNumber(newMembers[key].gold).plus(data.amount).toString(),
+            };
+          }
+          return newMembers;
+        });
+        if (data.uidList.length === 1) {
+          const member = members[data.uidList[0]];
+          toast.success(`${member.nickname}님이 ${toCurrency(data.amount * 10000, 0)}원을 지급받았습니다.`, {
+            duration: 3000,
+          });
+        } else {
+          toast.success(`${data.uidList.length}명이 ${toCurrency(data.amount * 10000, 0)}원을 지급받았습니다.`, {
+            duration: 3000,
+          });
+        }
+      };
+      const onGiveMoneyToAll = (amount) => {
+        setMembers((prev) => {
+          const newMembers = { ...prev };
+          for (let key in newMembers) {
+            newMembers[key] = { ...newMembers[key], gold: BigNumber(newMembers[key].gold).plus(amount).toString() };
+          }
+          return newMembers;
+        });
+        toast.success(`모든 참가자가 ${toCurrency(amount * 10000, 0)}원을 지급받았습니다.`);
+      };
+      const onNewBetNotify = (data) => {
+        toast.success(`새로운 카드를 확인하고 베팅을 진행하세요.`, {
+          duration: 3000,
+        });
+      };
+      const onBet = (betType) => {
+        // play sound clip
+        let typeName = null;
+        switch (betType) {
+          case BetType.CALL:
+            typeName = "call";
+            break;
+          case BetType.HALF:
+            typeName = "half";
+            break;
+          case BetType.BBING:
+            typeName = "bbing";
+            break;
+          case BetType.DDADANG:
+            typeName = "ddadang";
+            break;
+          case BetType.CHECK:
+            typeName = "check";
+            break;
+          case BetType.DIE:
+            typeName = "die";
+            break;
+          default:
+            typeName = null;
+        }
+
+        try {
+          const audioSrc = `/assets/sounds/poker/${typeName}.mp3`;
+          const audio = new Audio(audioSrc);
+          audio.play();
+        } catch (err) {
+          console.error(err);
+        }
       };
 
       socket?.on(SessionTopics.ROUND_START, onRoundStart);
@@ -232,6 +309,10 @@ const SevenPokerNoChip = forwardRef((props, _) => {
       socket?.on(Topics.START, onStart);
       socket?.on(Topics.STATE_CHANGE, onStateChange);
       socket?.on(Topics.WIN, onWin);
+      socket?.on(Topics.GIVE_MONEY_TO, onGiveMoneyTo);
+      socket?.on(Topics.GIVE_MONEY_TO_ALL, onGiveMoneyToAll);
+      socket?.on(Topics.NEW_BET_NOTIFY, onNewBetNotify);
+      socket?.on(Topics.BET, onBet);
 
       return () => {
         socket?.off(SessionTopics.ROUND_START, onRoundStart);
@@ -242,15 +323,19 @@ const SevenPokerNoChip = forwardRef((props, _) => {
         socket?.off(Topics.START, onStart);
         socket?.off(Topics.STATE_CHANGE, onStateChange);
         socket?.off(Topics.WIN, onWin);
+        socket?.off(Topics.GIVE_MONEY_TO, onGiveMoneyTo);
+        socket?.off(Topics.GIVE_MONEY_TO_ALL, onGiveMoneyToAll);
+        socket?.off(Topics.NEW_BET_NOTIFY, onNewBetNotify);
+        socket?.off(Topics.BET, onBet);
       };
     }
-  }, [socket?.connected, sessionId]);
+  }, [socket?.connected, sessionId, socket, members]);
 
   useEffect(() => {
     if (socket?.connected) {
       socket?.emitSession(sessionId, SessionTopics.ROUND_STATUS);
     }
-  }, [socket?.connected]);
+  }, [sessionId, socket, socket?.connected]);
 
   return (
     <div className="game-panel">
@@ -281,7 +366,7 @@ const SevenPokerNoChip = forwardRef((props, _) => {
   );
 });
 
-const GameRule = ({}) => {
+const GameRule = () => {
   return (
     <div className="panel game-rule">
       <div className="rule-box">
@@ -291,7 +376,21 @@ const GameRule = ({}) => {
           이 게임 모드에서는 현실에서 카드로 게임을 하는데 칩이 없거나 가상 머니가 필요할 때 유용합니다.
         </div>
         <div className="description">
-          세븐 포커에서의 기본적인 액션 (콜, 삥, 따당, 하프, 다이 등)을 취하셔야 다음 턴으로 진행됩니다.
+          세븐 포커에서의 기본적인 액션 (콜, 삥, 체크, 따당, 하프 다이 등)을 취하셔야 다음 턴으로 진행됩니다.
+        </div>
+        <div className="description">
+          우선 처음에는 모두 각각 카드를 4장씩 받습니다. 그 후 한명씩 버릴 카드를 골라 3장으로 만들어 1장을 공개한
+          상태로 시작 패를 결정합니다.
+        </div>
+        <div className="description">
+          시작 패가 결정되면, 차례대로 베팅을 진행합니다. 베팅 순서는 가장 높은 카드를 가진 사람부터 시작합니다.
+        </div>
+        <div className="description">
+          베팅을 하면서 판돈을 올리고, 한 바퀴를 돌면서 모두가 콜을 하면 다음 라운드로 넘어갑니다.
+        </div>
+        <div className="description">
+          라운드를 반복하면서 6장이될 때까지 카드를 받고 베팅을 합니다. 마지막 7번째 카드는 히든 카드로, 자신만 볼 수
+          있습니다.
         </div>
         <div className="description">
           방장은 포커 게임 중 승리자가 결정된 경우 진행 설정에서 게임을 종료할 수 있습니다.
@@ -345,17 +444,48 @@ const Settings = ({ sessionId, stage, session, goToDashboard }) => {
     }
   };
 
+  const floatGiveMoneyModal = (giveToAll = true) => {
+    console.log(session?.participants);
+    openModal(
+      MODAL_TYPES.SEVEN_POKER_NO_CHIP.GIVE_MONEY,
+      {
+        participants: session?.participants ?? [],
+        giveToAll,
+      },
+      (result) => {
+        try {
+          console.log(result);
+          if (!result) return;
+          if (giveToAll) {
+            const { givingMoney } = result;
+            socket?.emitSession(sessionId, Topics.GIVE_MONEY_TO_ALL, givingMoney);
+          } else {
+            const { givingMoney, givingTo } = result;
+            socket?.emitSession(sessionId, Topics.GIVE_MONEY_TO, {
+              uidList: givingTo,
+              amount: givingMoney,
+            });
+          }
+          // console.log(result);
+        } catch (err) {
+          console.error(err);
+          toast.error(err?.response?.data?.message ?? "오류가 발생했습니다.");
+        }
+      }
+    );
+  };
+
   const menus = [
     {
       label: "순서 정하기 및 게임 시작",
       activeFilter: [Stage.INITIAL],
       onClick: () => {
-        console.log(session?.participants);
-        floatModal(MODAL_TYPES.SEVEN_POKER_NO_CHIP.SET_ORDER, {
-          state: {
+        openModal(
+          MODAL_TYPES.SEVEN_POKER_NO_CHIP.SET_ORDER,
+          {
             participants: session?.participants ?? [],
           },
-          closeHandler: (result) => {
+          (result) => {
             try {
               const { order, startingMoney, initialMoney } = result;
               socket?.emitSession(sessionId, Topics.INITIAL_SETTING, {
@@ -368,8 +498,8 @@ const Settings = ({ sessionId, stage, session, goToDashboard }) => {
               console.error(err);
               toast.error(err?.response?.data?.message ?? "오류가 발생했습니다.");
             }
-          },
-        });
+          }
+        );
       },
     },
     {
@@ -391,12 +521,12 @@ const Settings = ({ sessionId, stage, session, goToDashboard }) => {
     {
       label: "모두에게 돈 주기",
       activeFilter: [],
-      // onClick: initializeSession,
+      onClick: () => floatGiveMoneyModal(true),
     },
     {
       label: "특정 멤버에게 돈 주기",
       activeFilter: [],
-      // onClick: initializeSession,
+      onClick: () => floatGiveMoneyModal(false),
     },
   ];
 
@@ -405,7 +535,11 @@ const Settings = ({ sessionId, stage, session, goToDashboard }) => {
       <div className="menus">
         {menus.map((e, ind) => {
           return (
-            <div className={"menu" + (e.activeFilter.includes(stage) ? "" : " inactive")} onClick={e.onClick} key={ind}>
+            <div
+              className={"menu" + (e.activeFilter.includes(stage) || e.activeFilter.length === 0 ? "" : " inactive")}
+              onClick={e.onClick}
+              key={ind}
+            >
               {e.label}
             </div>
           );

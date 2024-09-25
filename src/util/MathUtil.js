@@ -26,7 +26,7 @@ export const toRelFixed = (num, fix) => {
   return parseFloat(fixed);
 };
 
-export const toCurrency = (num) => {
+export const toCurrency = (num, fixed = 2) => {
   const units = ["만", "억", "조", "경", "해", "자", "양", "구", "간", "정"];
   let unit = "";
   let target = BigNumber(num).toNumber();
@@ -35,5 +35,5 @@ export const toCurrency = (num) => {
     target /= 10000;
     unit = units[i];
   }
-  return target.toFixed(2) + unit;
+  return target.toFixed(fixed) + unit;
 };

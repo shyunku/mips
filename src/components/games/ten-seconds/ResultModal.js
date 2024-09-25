@@ -1,5 +1,5 @@
 import Modal from "molecules/Modal";
-import { createRef, useEffect, useMemo } from "react";
+import { createRef, useEffect, useMemo, useState } from "react";
 import { fastInterval, printf } from "util/Common";
 import "components/GameResultModal.scss";
 import userStore from "stores/userStore";
@@ -7,16 +7,19 @@ import JsxUtil from "util/JsxUtil";
 
 const ResultModal = ({ state, ...props }) => {
   const uid = userStore((state) => state.uid);
-  const results = useMemo(() => state?.results ?? [], [state?.results]);
+  const [results, setResults] = useState([]);
   const modalRef = createRef();
   const closeHandler = () => {
     modalRef.current?.close();
   };
 
-  printf("state", results);
+  const onOpen = ({ results }) => {
+    setResults(results);
+    printf("state", results);
+  };
 
   return (
-    <Modal className="result-modal" ref={modalRef} {...props}>
+    <Modal className="result-modal" ref={modalRef} {...props} onOpen={onOpen}>
       <div className="title">게임 결과</div>
       <div className="content">
         <div className="result">
@@ -33,7 +36,7 @@ const ResultModal = ({ state, ...props }) => {
             })
             .map((e) => {
               return (
-                <div className={"result-item" + JsxUtil.classByEqual(e?.uid, uid, "me")}>
+                <div className={"result-item" + JsxUtil.classByEqual(e?.uid, uid, "me")} key={e?.uid}>
                   <div className="name">{e?.nickname}</div>
                   <div className="time">{e?.stopAt != null ? `${e?.stopAt}초` : "-"}</div>
                   <div className="rank">{e?.rating != null ? `${e?.rating}위` : "버스트"}</div>

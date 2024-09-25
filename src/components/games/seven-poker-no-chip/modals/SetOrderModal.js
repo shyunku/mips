@@ -8,15 +8,19 @@ import "./SetOrderModal.scss";
 import GameMoney from "../GameMoney";
 import BigNumber from "bignumber.js";
 
-const SetOrderModal = ({ state, ...props }) => {
+const SetOrderModal = ({ ...props }) => {
   const uid = userStore((state) => state.uid);
   const modalRef = createRef();
   // printf("state", state);
 
-  const participants = useMemo(() => [...(state?.participants ?? [])], [state?.participants]);
+  const [participants, setParticipants] = useState([]);
   const [participantOrder, setParticipantOrder] = useState([]);
   const [initialMoney, setInitialMoney] = useState("1000000");
   const [startingMoney, setStartingMoney] = useState("100");
+
+  const onOpen = ({ participants }) => {
+    setParticipants(participants);
+  };
 
   const onOrderUp = (ind) => {
     if (ind === 0) return;
@@ -82,7 +86,7 @@ const SetOrderModal = ({ state, ...props }) => {
   }, [participants]);
 
   return (
-    <Modal className="set-order-modal" ref={modalRef} {...props}>
+    <Modal className="set-order-modal" ref={modalRef} {...props} onOpen={onOpen}>
       <div className="title">턴 순서 및 초기 금액 정하기</div>
       <div className="content">
         <div className="participant-turn-order">
